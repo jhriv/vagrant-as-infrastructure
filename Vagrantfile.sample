@@ -29,6 +29,22 @@ Vagrant.configure(2) do |config|
         box.vm.network 'private_network',
           ip: guest[:ip].match('\.') ? guest[:ip] : "#{IP_NETWORK}.#{guest[:ip]}"
       end
+      # Provider specific settings
+      box.vm.provider "virtualbox" do |v|
+        v.cpus   = guest[:cpus]   if guest.has_key?(:cpus)
+        v.gui    = guest[:gui]    if guest.has_key?(:gui)
+        v.memory = guest[:memory] if guest.has_key?(:memory)
+      end
+      config.vm.provider "vmware_fusion" do |v|
+        v.gui             = guest[:gui]    if guest.has_key?(:gui)
+        v.vmx["memsize"]  = guest[:memory] if guest.has_key?(:memory)
+        v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
+      end
+      config.vm.provider "vmware_workstation" do |v|
+        v.gui             = guest[:gui]    if guest.has_key?(:gui)
+        v.vmx["memsize"]  = guest[:memory] if guest.has_key?(:memory)
+        v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
+      end
     end
   end
 end
