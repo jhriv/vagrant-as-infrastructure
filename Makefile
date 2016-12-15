@@ -1,6 +1,8 @@
-.PHONY: menu all up roles force-roles ping ip
+WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
+VERSION=0.1.0
+.PHONY: menu all up roles force-roles ping ip update version
 
 menu:
 	@echo 'up: Create VMs'
@@ -13,6 +15,10 @@ menu:
 	@echo 'all: Create all of the above'
 	@echo
 	@echo '"make all SSHCONF=sshconf INVENTORY=ansible-inv"'
+	@echo ''
+	@echo 'version: Prints current version'
+	@echo 'udpate: Downloads latest version from github'
+	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
 
 all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip
 
@@ -49,3 +55,9 @@ ping:
 
 ip:
 	@ansible -a 'hostname -I' all
+
+update:
+	@wget --quiet https://github.com/jhriv/vagrant-as-infrastructure/raw/master/Makefile --output-document=$(WHOAMI)
+
+version:
+	@ echo '$(VERSION)'
