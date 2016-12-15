@@ -1,7 +1,7 @@
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
-VERSION=0.1.0
+VERSION=0.2.0
 .PHONY: menu all up roles force-roles ping ip update version
 
 menu:
@@ -42,13 +42,24 @@ ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo '[ssh_connection]' >> $@
 	@echo 'ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -F $(SSHCONFIG)' >> $@
 
-$(SSHCONFIG): Vagrantfile
+$(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id) Vagrantfile
 	@echo "Creating $@"
-	@vagrant ssh-config > $@
+	@vagrant ssh-config > $@ \
+		|| ( RET=$$?; rm $@; exit $$RET; )
 
-$(INVENTORY): Vagrantfile
+# Because of the pipe, extrodinary means have to be used to save the return
+# code of "vagrant status"
+$(INVENTORY): $(wildcard .vagrant/machines/*/*/id) Vagrantfile
 	@echo "Creating $@"
-	@vagrant status | perl -nE 'if (/^$$/.../^$$/){say qq($$1) if /^(\S+)/;}' > $@
+	@( ( ( vagrant status; echo $$? >&3 ) \
+		|  perl -nE 'if (/^$$/.../^$$/){say qq($$1) if /^(\S+)/;}' > $@ ) 3>&1 ) \
+		|  ( read x; exit $$x ) \
+		|| ( RET=$$?; rm $@; exit $$RET )
+
+Vagrantfile:
+	@echo 'Either use "vagrant init <box>" to create a Vagrantfile,'
+	@echo 'or "cp Vagrantfile.sample Vagrantfile"'
+	@false
 
 ping:
 	@ansible -m ping all
