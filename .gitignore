@@ -1,0 +1,6 @@
+*.log
+.ssh-config
+.vagrant
+Vagrantfile
+ansible.cfg
+hosts
