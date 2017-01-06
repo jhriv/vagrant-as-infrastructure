@@ -1,7 +1,7 @@
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
-VERSION=0.2.0
+VERSION=0.2.1
 .PHONY: menu all up roles force-roles ping ip update version
 
 menu:
@@ -58,7 +58,8 @@ $(INVENTORY): $(wildcard .vagrant/machines/*/*/id) Vagrantfile
 
 Vagrantfile:
 	@echo 'Either use "vagrant init <box>" to create a Vagrantfile,'
-	@echo 'or "cp Vagrantfile.sample Vagrantfile"'
+	@echo '"cp Vagrantfile.sample Vagrantfile" if you cloned the repo, or download'
+	@echo 'https://github.com/jhriv/vagrant-as-infrastructure/raw/master/Vagrantfile.sample'
 	@false
 
 ping:
