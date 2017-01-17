@@ -1,7 +1,7 @@
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
-VERSION=0.2.1
+VERSION=0.2.2
 .PHONY: menu all up roles force-roles ping ip update version
 
 menu:
@@ -29,10 +29,9 @@ roles: $(wildcard roles.yml config/roles.yml)
 	@echo 'Downloading roles'
 	@ansible-galaxy install --role-file=$< --roles-path=roles
 
-force-roles:
-	@echo 'Downloading roles'
+force-roles: $(wildcard roles.yml config/roles.yml)
+	@echo 'Downloading roles (forced)'
 	@ansible-galaxy install --role-file=$< --roles-path=roles --force
-
 
 ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo "Creating $@"
