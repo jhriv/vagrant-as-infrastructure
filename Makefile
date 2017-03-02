@@ -1,7 +1,7 @@
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
-VERSION=0.2.2
+VERSION=0.2.3
 .PHONY: menu all up roles force-roles ping ip update version
 
 menu:
@@ -16,6 +16,8 @@ menu:
 	@echo
 	@echo '"make all SSHCONF=sshconf INVENTORY=ansible-inv"'
 	@echo ''
+	@echo 'python: Installs python on Debian systems'
+	@echo 'root-key: Copies vagrant ssh key for root'
 	@echo 'version: Prints current version'
 	@echo 'udpate: Downloads latest version from github'
 	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
@@ -66,6 +68,13 @@ ping:
 
 ip:
 	@ansible -a 'hostname -I' all
+
+python:
+	@ansible all -m raw -a 'sudo apt-get install --assume-yes python python-apt'
+
+root-key:
+	@ansible all -b -m file -a 'dest=/root/.ssh state=directory mode=0700 owner=root group=root'
+	@ansible all -b -m copy -a 'src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
 
 update:
 	@wget --quiet https://github.com/jhriv/vagrant-as-infrastructure/raw/master/Makefile --output-document=$(WHOAMI)
