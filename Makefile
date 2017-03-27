@@ -1,8 +1,9 @@
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
-VERSION=0.2.3
-.PHONY: menu all up roles force-roles ping ip update version
+SAMPLEVAGRANTFILE=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure/master/Vagrantfile.sample
+VERSION=0.2.4
+.PHONY: menu all clean up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
 	@echo 'up: Create VMs'
@@ -18,11 +19,17 @@ menu:
 	@echo ''
 	@echo 'python: Installs python on Debian systems'
 	@echo 'root-key: Copies vagrant ssh key for root'
+	@echo 'clean: Removes ansible files'
+	@echo 'Vagrantfile-force: Overwrites Vagrantfile with sample Vagrantfile'
 	@echo 'version: Prints current version'
 	@echo 'udpate: Downloads latest version from github'
 	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
 
 all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip
+
+clean:
+	@echo Removing ansible files
+	@rm ansible.cfg $(SSHCONFIG) $(INVENTORY)
 
 up:
 	@vagrant up
@@ -60,14 +67,18 @@ $(INVENTORY): $(wildcard .vagrant/machines/*/*/id) Vagrantfile
 Vagrantfile:
 	@echo 'Either use "vagrant init <box>" to create a Vagrantfile,'
 	@echo '"cp Vagrantfile.sample Vagrantfile" if you cloned the repo, or download'
-	@echo 'https://github.com/jhriv/vagrant-as-infrastructure/raw/master/Vagrantfile.sample'
+	@echo '$(SAMPLEVAGRANTFILE)'
 	@false
+
+Vagrantfile-force:
+	@echo Downloading $(SAMPLEVAGRANTFILE)
+	@curl --output Vagrantfile $(SAMPLEVAGRANTFILE)
 
 ping:
 	@ansible -m ping all
 
 ip:
-	@ansible -a 'hostname -I' all
+	@ansible -a 'hostname -I' all || { ret=$$?; echo Do you need to install python? \(make python\); exit $$ret; }
 
 python:
 	@ansible all -m raw -a 'sudo apt-get install --assume-yes python python-apt'
