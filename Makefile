@@ -2,7 +2,7 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
 SAMPLEVAGRANTFILE=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure/master/Vagrantfile.sample
-VERSION=0.2.4
+VERSION=0.2.5
 .PHONY: menu all clean up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
@@ -29,7 +29,7 @@ all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip
 
 clean:
 	@echo Removing ansible files
-	@rm ansible.cfg $(SSHCONFIG) $(INVENTORY)
+	@rm ansible.cfg $(SSHCONFIG) $(INVENTORY) || true
 
 up:
 	@vagrant up
