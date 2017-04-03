@@ -2,7 +2,7 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
 SAMPLEVAGRANTFILE=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure/master/Vagrantfile.sample
-VERSION=0.2.5
+VERSION=0.2.6
 .PHONY: menu all clean up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
@@ -29,7 +29,7 @@ all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip
 
 clean:
 	@echo Removing ansible files
-	@rm ansible.cfg $(SSHCONFIG) $(INVENTORY) || true
+	@rm -f ansible.cfg $(SSHCONFIG) $(INVENTORY)
 
 up:
 	@vagrant up
@@ -74,16 +74,16 @@ Vagrantfile-force:
 	@echo Downloading $(SAMPLEVAGRANTFILE)
 	@curl --output Vagrantfile $(SAMPLEVAGRANTFILE)
 
-ping:
+ping: ansible.cfg
 	@ansible -m ping all
 
-ip:
+ip: ansible.cfg
 	@ansible -a 'hostname -I' all || { ret=$$?; echo Do you need to install python? \(make python\); exit $$ret; }
 
-python:
+python: ansible.cfg
 	@ansible all -m raw -a 'sudo apt-get install --assume-yes python python-apt'
 
-root-key:
+root-key: ansible.cfg
 	@ansible all -b -m file -a 'dest=/root/.ssh state=directory mode=0700 owner=root group=root'
 	@ansible all -b -m copy -a 'src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
 
@@ -91,4 +91,4 @@ update:
 	@wget --quiet https://github.com/jhriv/vagrant-as-infrastructure/raw/master/Makefile --output-document=$(WHOAMI)
 
 version:
-	@ echo '$(VERSION)'
+	@echo '$(VERSION)'
