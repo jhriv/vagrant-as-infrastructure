@@ -7,11 +7,13 @@ DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'centos/7')
 
 # List guests here, one per line.
 # :name, name of the box
-# :box (optional), box to build from (default DEFAULT_BOX)
+# :box (optional), box to build from. Default DEFAULT_BOX
 # :ip (optional), IP address for local networking. Can be full dotted quad
 #     or the last octet, which will be appended to the IP_NETWORK environmental
 #     variable. Default none.
 # :sync (optional) Should /vagrant be mounted? Default false
+# :needs_python (optional) Install python packages? Default false
+#     (Debian/Ubuntu only)
 # If there are multiple systems, the first one will be marked "primary"
 guests = [
   { :name => 'default' },
@@ -19,6 +21,7 @@ guests = [
   #{ :name => 'web2', :ip => '192.168.1.3' },
   #{ :name => 'db1' },
   #{ :name => 'app', :sync => true },
+  #{ :name => 'datastore', :box => 'ubuntu/xenial64', :needs_python => true },
 ]
 
 Vagrant.configure(2) do |config|
@@ -50,6 +53,14 @@ Vagrant.configure(2) do |config|
         v.gui             = guest[:gui]    if guest.has_key?(:gui)
         v.vmx["memsize"]  = guest[:memory] if guest.has_key?(:memory)
         v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
+      end
+      # Some boxes lack python
+      if guest.has_key?(:needs_python) && guest[:needs_python]
+        box.vm.provision 'shell',
+          inline: <<-'SCRIPT'
+            apt-get update
+            apt-get install --assume-yes python python-apt
+          SCRIPT
       end
     end
   end
