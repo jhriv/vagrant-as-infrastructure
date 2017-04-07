@@ -6,24 +6,24 @@ IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
 DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'centos/7')
 
 # List guests here, one per line.
-# :name, name of the box
-# :box (optional), box to build from. Default DEFAULT_BOX
-# :ip (optional), IP address for local networking. Can be full dotted quad
+# name: (REQUIRED), name of the box
+# box: (optional), box to build from. Default DEFAULT_BOX
+# ip: (optional), IP address for local networking. Can be full dotted quad
 #     or the last octet, which will be appended to the IP_NETWORK environmental
 #     variable. Default none.
-# :sync (optional) Should /vagrant be mounted? Default false
-# :needs_python (optional) Install python packages? Default false
 # ports: (optional), Array of ports to forward. Can either be integers, or a
 #     hash with supported options.
+# sync: (optional) Should /vagrant be mounted? Default false
+# needs_python: (optional) Install python packages? Default false
 #     (Debian/Ubuntu only)
 # If there are multiple systems, the first one will be marked "primary"
 guests = [
-  { :name => 'default' },
-  #{ :name => 'web1', :box => 'centos/6', :ip => '2' },
-  #{ :name => 'web2', :ip => '192.168.1.3' },
-  #{ :name => 'db1' },
-  #{ :name => 'app', :sync => true },
-  #{ :name => 'datastore', :box => 'ubuntu/xenial64', :needs_python => true },
+  { name: 'default' },
+  #{ name: 'web1', box: 'centos/6', ip: '2' },
+  #{ name: 'web2', ip: '192.168.1.3' },
+  #{ name: 'db1' },
+  #{ name: 'app', sync: true, ports: [ 8088, { guest: 80, host: 8000 } ] },
+  #{ name: 'datastore', box: 'ubuntu/xenial64', needs_python: true },
 ]
 
 Vagrant.configure(2) do |config|
