@@ -17,7 +17,3 @@ The goal is to produce the convenient local playground, but skipping the ssh key
 ## Roles
 
 If `roles.yml` or `config/roles.yml` exists, the listed roles will be downloaded from Galaxy. If both exist, then `roles.yml` will take precedence.
-
-## Special Notes
-
-Ubuntu Xenial has significantly changed, so setting a private network IP fails. Trusty and Precise still work.
