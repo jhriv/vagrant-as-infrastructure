@@ -13,6 +13,8 @@ DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'centos/7')
 #     variable. Default none.
 # :sync (optional) Should /vagrant be mounted? Default false
 # :needs_python (optional) Install python packages? Default false
+# ports: (optional), Array of ports to forward. Can either be integers, or a
+#     hash with supported options.
 #     (Debian/Ubuntu only)
 # If there are multiple systems, the first one will be marked "primary"
 guests = [
@@ -28,15 +30,34 @@ Vagrant.configure(2) do |config|
   guests.each_with_index do |guest, i|
     config.vm.define "#{guest[:name]}", primary: i==0 do |box|
       box.vm.box_check_update = false
+      # OS
       box.vm.box = ( guest.key?(:box) ? guest[:box] : DEFAULT_BOX )
       unless guest.has_key?(:sync)
          box.vm.synced_folder '.', '/vagrant', disabled: true
       else
          box.vm.synced_folder '.', '/vagrant', disabled: ! guest[:sync]
       end
+      # IP
       if guest.has_key?(:ip)
         box.vm.network 'private_network',
           ip: guest[:ip].to_s.match('\.') ? guest[:ip] : "#{IP_NETWORK}.#{guest[:ip].to_s}"
+      end
+      # Port forwarding
+      if guest.has_key?(:ports)
+        guest[:ports].each do |port|
+          if port.is_a? Integer
+            box.vm.network "forwarded_port", guest: port, host: port
+          else # elif port.is_a? Hash
+            box.vm.network "forwarded_port",
+              guest:        port[:guest],
+              auto_correct: port.has_key?(:auto_correct) ? port[:auto_correct] : true,
+              guest_ip:     port.has_key?(:guest_ip)     ? port[:guest_ip]     : nil,
+              host_ip:      port.has_key?(:host_ip)      ? port[:host_ip]      : nil,
+              host:         port.has_key?(:host)         ? port[:host]         : port[:guest],
+              id:           port.has_key?(:id)           ? port[:id]           : nil,
+              protocol:     port.has_key?(:protocol)     ? port[:protocol]     : nil
+          end
+        end
       end
       # Provider specific settings
       box.vm.provider "virtualbox" do |v|
