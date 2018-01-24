@@ -2,8 +2,8 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
 SAMPLEVAGRANTFILE=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure/master/Vagrantfile.sample
-VERSION=0.2.6
-.PHONY: menu all clean up roles force-roles Vagrantfile-force ping ip update version
+VERSION=0.2.7
+.PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
 	@echo 'up: Create VMs'
@@ -20,6 +20,7 @@ menu:
 	@echo 'python: Installs python on Debian systems'
 	@echo 'root-key: Copies vagrant ssh key for root'
 	@echo 'clean: Removes ansible files'
+	@echo 'clean-roles: Removes installed ansible roles'
 	@echo 'Vagrantfile-force: Overwrites Vagrantfile with sample Vagrantfile'
 	@echo 'version: Prints current version'
 	@echo 'udpate: Downloads latest version from github'
@@ -30,6 +31,10 @@ all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip
 clean:
 	@echo Removing ansible files
 	@rm -f ansible.cfg $(SSHCONFIG) $(INVENTORY)
+
+clean-roles:
+	@echo Removing installed ansible roles
+	@rm -rf roles/*
 
 up:
 	@vagrant up
