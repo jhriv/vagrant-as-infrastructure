@@ -1,4 +1,5 @@
 *.log
+.ansible-retry
 .ssh-config
 .vagrant
 Vagrantfile

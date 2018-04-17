@@ -2,7 +2,7 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
 SAMPLEVAGRANTFILE=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure/master/Vagrantfile.sample
-VERSION=0.2.7
+VERSION=0.2.8
 .PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
@@ -51,6 +51,8 @@ ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo "Creating $@"
 	@echo '[defaults]' > $@
 	@echo 'inventory = $(INVENTORY)' >> $@
+	@echo 'retry_files_save_path = .ansible-retry' >> $@
+	@test -f .vaultpassword && echo 'vault_password_file = .vaultpassword' >> $@ || true
 	@echo '' >> $@
 	@echo '[ssh_connection]' >> $@
 	@echo 'ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -F $(SSHCONFIG)' >> $@
