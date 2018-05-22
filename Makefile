@@ -2,7 +2,7 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 SSHCONFIG=.ssh-config
 INVENTORY=hosts
 SAMPLEVAGRANTFILE=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure/master/Vagrantfile.sample
-VERSION=0.2.8
+VERSION=0.3.0
 .PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
@@ -89,6 +89,9 @@ ip: ansible.cfg
 
 python: ansible.cfg
 	@ansible all -m raw -a 'sudo apt-get install --assume-yes python python-apt'
+
+etc-hosts: ansible.cfg
+	@ansible-playbook etc-hosts.yml
 
 root-key: ansible.cfg
 	@ansible all -b -m file -a 'dest=/root/.ssh state=directory mode=0700 owner=root group=root'
