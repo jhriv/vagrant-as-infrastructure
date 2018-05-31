@@ -7,7 +7,7 @@ RETRYPATH=.ansible-retry
 SAMPLEVAGRANTFILE=$(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG=.ssh-config
 VAULTPASSWORDFILE=.vaultpassword
-VERSION=0.3.0
+VERSION=0.4.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
@@ -36,11 +36,11 @@ menu:
 all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip
 
 clean:
-	@echo Removing ansible files
+	@echo 'Removing ansible files'
 	@rm -f ansible.cfg $(SSHCONFIG) $(INVENTORY)
 
 clean-roles:
-	@echo Removing installed ansible roles
+	@echo 'Removing local ansible roles'
 	@rm -rf roles/*
 
 up:
@@ -55,62 +55,77 @@ force-roles: $(wildcard roles.yml config/roles.yml)
 	@ansible-galaxy install --role-file=$< --roles-path=roles --force
 
 ansible.cfg: $(SSHCONFIG) $(INVENTORY)
-	@echo "Creating $@"
+	@echo 'Creating $@'
 	@echo '[defaults]' > $@
 	@echo 'inventory = $(INVENTORY)' >> $@
 	@echo 'retry_files_save_path = $(RETRYPATH)' >> $@
 	@test -f $(VAULTPASSWORDFILE) \
-		&& echo 'vault_password_file = $(VAULTPASSWORDFILE)' >> $@ || true
+		&& echo 'vault_password_file = $(VAULTPASSWORDFILE)' >> $@ \
+		|| true
 	@echo '' >> $@
 	@echo '[ssh_connection]' >> $@
 	@echo 'ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -F $(SSHCONFIG)' >> $@
 
-$(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id) Vagrantfile
-	@echo "Creating $@"
+$(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id)
+	@echo 'Creating $@'
 	@vagrant ssh-config > $@ \
 		|| ( RET=$$?; rm $@; exit $$RET; )
 
-# Because of the pipe, extrodinary means have to be used to save the return
+# Because of the pipe, extraordinary means have to be used to save the return
 # code of "vagrant status"
-$(INVENTORY): $(wildcard .vagrant/machines/*/*/id) Vagrantfile
-	@echo "Creating $@"
+$(INVENTORY): $(wildcard .vagrant/machines/*/*/id)
+	@echo 'Creating $@'
 	@( ( ( vagrant status; echo $$? >&3 ) \
 		|  perl -nE 'if (/^$$/.../^$$/){say qq($$1) if /^(\S+)/;}' > $@ ) 3>&1 ) \
 		|  ( read x; exit $$x ) \
 		|| ( RET=$$?; rm $@; exit $$RET )
 
-Vagrantfile:
-	@echo 'Either use "vagrant init <box>" to create a Vagrantfile,'
-	@echo '"cp Vagrantfile.sample Vagrantfile" if you cloned the repo, or download'
-	@echo '$(SAMPLEVAGRANTFILE)'
-	@false
-
-Vagrantfile-force:
-	@echo Downloading $(SAMPLEVAGRANTFILE)
-	@curl --output Vagrantfile $(SAMPLEVAGRANTFILE)
+Vagrantfile: | GUESTS.rb
+Vagrantfile GUESTS.rb:
+	@if [ -f $@.sample ]; then \
+		echo 'Copying $@.sample'; \
+		cp $@.sample $@; \
+	else \
+		echo 'Downloading $@'; \
+		curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@.sample; \
+	fi
 
 ping: ansible.cfg
 	@ansible -m ping all
 
 ip: ansible.cfg
-	@ansible -a 'hostname -I' all || { ret=$$?; echo Do you need to install python? \(make python\); exit $$ret; }
+	@ansible all --args='hostname -I' \
+		|| { ret=$$?; \
+			echo 'Do you need to install python? (make python)'; \
+			exit $$ret; \
+		}
 
 python: ansible.cfg
-	@ansible all -m raw -a 'sudo apt-get install --assume-yes python python-apt'
+	@ansible all \
+		--module-name=raw \
+		--args='sudo apt-get update; \
+			sudo apt-get install --assume-yes python python-apt'
 
 $(ETC_HOSTS):
-	echo Downloading $@
-	@curl --output $@ $(REPO)/$(VERSION)/$@
+	echo 'Downloading $@'
+	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@
 
 etc-hosts: $(ETC_HOSTS) ansible.cfg
 	@ansible-playbook $<
 
 root-key: ansible.cfg
-	@ansible all -b -m file -a 'dest=/root/.ssh state=directory mode=0700 owner=root group=root'
-	@ansible all -b -m copy -a 'src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
+	@ansible all \
+		--become \
+		--module-name=file \
+		--args='dest=/root/.ssh state=directory mode=0700 owner=root group=root'
+	@ansible all \
+		--become \
+		--module-name=copy \
+		--args='src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
 
 update:
-	@wget --quiet $(REPO)/master/Makefile --output-document=$(WHOAMI)
+	@echo 'Downloading latest Makefile'
+	@curl --silent --show-error --output $(WHOAMI) $(REPO)/master/Makefile
 
 version:
 	@echo '$(VERSION)'
