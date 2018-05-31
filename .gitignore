@@ -3,5 +3,6 @@
 .inventory
 .ssh-config
 .vagrant
+GUESTS.rb
 Vagrantfile
 ansible.cfg

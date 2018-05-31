@@ -5,32 +5,11 @@
 IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
 DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'centos/7')
 
-# List guests here, one per record.
-# name: (REQUIRED) name of the box
-# box: (optional) box to build from. Default DEFAULT_BOX
-# ip: (optional) IP address for local networking. Can be full dotted quad
-#     or the last octet, which will be appended to the IP_NETWORK environmental
-#     variable. Special value 'dhcp' can be used. Default none
-# ports: (optional) Array of ports to forward. Can either be integers, or a
-#     hash with supported options. Default no forwarded ports
-# cpus: (optional) number of CPUs to assign the VM. Default provider specific
-# memory: (optional) RAM to assign in KB. Default provider specific
-# gui: (optional), Enable GUI. Default false
-# sync: (optional) Should /vagrant be mounted? Default false
-# needs_python: (optional) Install python packages? Default false
-#     (Debian/Ubuntu only)
-# If there are multiple systems, the first one will be marked "primary"
-guests = [
-  { name: 'default' },
-  #{ name: 'web1', box: 'centos/6', ip: '2' },
-  #{ name: 'web2', ip: '192.168.1.3' },
-  #{ name: 'db1' },
-  #{ name: 'app', sync: true, ports: [ 8088, { guest: 80, host: 8000 } ] },
-  #{ name: 'datastore', box: 'ubuntu/xenial64', needs_python: true },
-]
+# List guests separately
+require_relative 'GUESTS';
 
 Vagrant.configure(2) do |config|
-  guests.each_with_index do |guest, i|
+  GUESTS.each_with_index do |guest, i|
     config.vm.define "#{guest[:name]}", primary: i==0 do |box|
       box.vm.box_check_update = false
       # OS
@@ -89,6 +68,21 @@ Vagrant.configure(2) do |config|
             export DEBIAN_FRONTEND=noninteractive
             apt-get update  --quiet=2
             apt-get install --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes python python-apt
+          SCRIPT
+      end
+      if guest.has_key?(:update) && guest[:update]
+        box.vm.provision 'shell',
+          inline: <<-'SCRIPT'
+            if command -v apt-get > /dev/null; then
+              export DEBIAN_FRONTEND=noninteractive
+              echo apty
+              apt-get update  --quiet=2
+              apt-get upgrade --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes
+            fi
+            if command -v yum > /dev/null; then
+              yum upgrade --quiet --assumeyes
+              echo yummy
+            fi
           SCRIPT
       end
     end
