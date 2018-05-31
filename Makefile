@@ -1,26 +1,33 @@
-WHOAMI := $(lastword $(MAKEFILE_LIST))
+# Master Makefile for Vagrant as Infrastructure.
+
+ETC_HOSTS=.etc-hosts.yml
+INVENTORY=.inventory
+REPO=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure
+RETRYPATH=.ansible-retry
+SAMPLEVAGRANTFILE=$(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG=.ssh-config
-INVENTORY=hosts
-SAMPLEVAGRANTFILE=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure/master/Vagrantfile.sample
+VAULTPASSWORDFILE=.vaultpassword
 VERSION=0.3.0
+WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
 	@echo 'up: Create VMs'
 	@echo 'roles: Populate Galaxy roles from "roles.yml" or "config/roles.yml"'
-	@echo 'force-roles: Update all roles, overwrting when required'
 	@echo 'ansible.cfg: Create default ansible.cfg'
 	@echo '$(SSHCONFIG): Create ssh configuration (use "make <file> SSHCONFIG=<file>" to override name)'
 	@echo '$(INVENTORY): Create ansible inventory (use "make <file> INVENTORY=<file>" to overrride name)'
 	@echo 'ip: Display the IPs of all the VMs'
 	@echo 'all: Create all of the above'
 	@echo
-	@echo '"make all SSHCONF=sshconf INVENTORY=ansible-inv"'
+	@echo '"make all SSHCONFIG=sshconf INVENTORY=ansible-inv"'
 	@echo ''
 	@echo 'python: Installs python on Debian systems'
 	@echo 'root-key: Copies vagrant ssh key for root'
 	@echo 'clean: Removes ansible files'
 	@echo 'clean-roles: Removes installed ansible roles'
+	@echo 'force-roles: Update all roles, overwrting when required'
+	@echo 'etc-hosts: Add host records to all guests'
 	@echo 'Vagrantfile-force: Overwrites Vagrantfile with sample Vagrantfile'
 	@echo 'version: Prints current version'
 	@echo 'udpate: Downloads latest version from github'
@@ -51,8 +58,9 @@ ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo "Creating $@"
 	@echo '[defaults]' > $@
 	@echo 'inventory = $(INVENTORY)' >> $@
-	@echo 'retry_files_save_path = .ansible-retry' >> $@
-	@test -f .vaultpassword && echo 'vault_password_file = .vaultpassword' >> $@ || true
+	@echo 'retry_files_save_path = $(RETRYPATH)' >> $@
+	@test -f $(VAULTPASSWORDFILE) \
+		&& echo 'vault_password_file = $(VAULTPASSWORDFILE)' >> $@ || true
 	@echo '' >> $@
 	@echo '[ssh_connection]' >> $@
 	@echo 'ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -F $(SSHCONFIG)' >> $@
@@ -90,15 +98,19 @@ ip: ansible.cfg
 python: ansible.cfg
 	@ansible all -m raw -a 'sudo apt-get install --assume-yes python python-apt'
 
-etc-hosts: ansible.cfg
-	@ansible-playbook etc-hosts.yml
+$(ETC_HOSTS):
+	echo Downloading $@
+	@curl --output $@ $(REPO)/$(VERSION)/$@
+
+etc-hosts: $(ETC_HOSTS) ansible.cfg
+	@ansible-playbook $<
 
 root-key: ansible.cfg
 	@ansible all -b -m file -a 'dest=/root/.ssh state=directory mode=0700 owner=root group=root'
 	@ansible all -b -m copy -a 'src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
 
 update:
-	@wget --quiet https://github.com/jhriv/vagrant-as-infrastructure/raw/master/Makefile --output-document=$(WHOAMI)
+	@wget --quiet $(REPO)/master/Makefile --output-document=$(WHOAMI)
 
 version:
 	@echo '$(VERSION)'
