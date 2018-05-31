@@ -1,7 +1,7 @@
 *.log
 .ansible-retry
+.inventory
 .ssh-config
 .vagrant
 Vagrantfile
 ansible.cfg
-hosts
