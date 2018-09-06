@@ -2,8 +2,8 @@
 # vi: set ft=ruby :
 
 # Reasonable Defaults - can be overwridden with environmental variables
-IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
-DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'centos/7')
+_IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
+_DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'centos/7')
 
 # List guests separately
 require_relative 'GUESTS';
@@ -13,7 +13,7 @@ Vagrant.configure(2) do |config|
     config.vm.define "#{guest[:name]}", primary: i==0 do |box|
       box.vm.box_check_update = false
       # OS
-      box.vm.box = ( guest.key?(:box) ? guest[:box] : DEFAULT_BOX )
+      box.vm.box = ( guest.key?(:box) ? guest[:box] : _DEFAULT_BOX )
       unless guest.has_key?(:sync)
          box.vm.synced_folder '.', '/vagrant', disabled: true
       else
@@ -25,7 +25,7 @@ Vagrant.configure(2) do |config|
           box.vm.network 'private_network', type: guest[:ip]
         else
           box.vm.network 'private_network',
-            ip: guest[:ip].to_s.match('\.') ? guest[:ip] : "#{IP_NETWORK}.#{guest[:ip].to_s}"
+            ip: guest[:ip].to_s.match('\.') ? guest[:ip] : "#{_IP_NETWORK}.#{guest[:ip].to_s}"
         end
       end
       # Port forwarding

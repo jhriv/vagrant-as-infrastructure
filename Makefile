@@ -7,7 +7,7 @@ RETRYPATH=.ansible-retry
 SAMPLEVAGRANTFILE=$(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG=.ssh-config
 VAULTPASSWORDFILE=.vaultpassword
-VERSION=0.4.0
+VERSION=0.4.1
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
