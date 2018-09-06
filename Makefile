@@ -1,13 +1,14 @@
 # Master Makefile for Vagrant as Infrastructure.
 
-ETC_HOSTS=.etc-hosts.yml
-INVENTORY=.inventory
-REPO=https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure
-RETRYPATH=.ansible-retry
-SAMPLEVAGRANTFILE=$(REPO)/$(VERSION)/Vagrantfile.sample
-SSHCONFIG=.ssh-config
-VAULTPASSWORDFILE=.vaultpassword
-VERSION=0.4.1
+ETC_HOSTS ?= .etc-hosts.yml
+INVENTORY ?= .inventory
+REPO ?= https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure
+RETRYPATH ?= .ansible-retry
+ROLES_PATH ?= roles
+SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
+SSHCONFIG ?= .ssh-config
+VAULTPASSWORDFILE ?= .vaultpassword
+VERSION := 0.5.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
@@ -41,24 +42,25 @@ clean:
 
 clean-roles:
 	@echo 'Removing local ansible roles'
-	@rm -rf roles/*
+	@rm -rf $(ROLES_PATH)/*
 
 up:
 	@vagrant up
 
 roles: $(wildcard roles.yml config/roles.yml)
 	@echo 'Downloading roles'
-	@ansible-galaxy install --role-file=$< --roles-path=roles
+	@ansible-galaxy install --role-file=$< --roles-path=$(ROLES_PATH)
 
 force-roles: $(wildcard roles.yml config/roles.yml)
 	@echo 'Downloading roles (forced)'
-	@ansible-galaxy install --role-file=$< --roles-path=roles --force
+	@ansible-galaxy install --role-file=$< --roles-path=$(ROLES_PATH) --force
 
 ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo 'Creating $@'
 	@echo '[defaults]' > $@
 	@echo 'inventory = $(INVENTORY)' >> $@
 	@echo 'retry_files_save_path = $(RETRYPATH)' >> $@
+	@echo 'roles_path = $(ROLES_PATH)' >> $@
 	@test -f $(VAULTPASSWORDFILE) \
 		&& echo 'vault_password_file = $(VAULTPASSWORDFILE)' >> $@ \
 		|| true

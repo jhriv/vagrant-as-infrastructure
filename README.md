@@ -19,7 +19,21 @@ The goal is to produce the convenient local playground, but skipping the ssh key
 * Creates `ansible.cfg` that uses the above ssh configuration
 * Displays the IP address of the VMs
 
-## Roles
+## Overrides
+
+The Makefile will accept command line arguments, or read from simarly named
+environmental variables:
+
+* `ETC_HOSTS` etc-hosts playbook
+* `INVENTORY` ansible inventory file
+* `REPO` upstream repository
+* `RETRYPATH` directory to play .retry files
+* `ROLES_PATH` ansible roles path
+* `SAMPLEVAGRANTFILE` upstream Vagrantfile.sample
+* `SSHCONFIG` location of generated ssh configuration
+* `VAULTPASSWORDFILE` path to ansible vault password file
+
+## Roles:
 
 If `roles.yml` or `config/roles.yml` exists, the listed roles will be downloaded from Galaxy. If both exist, then `roles.yml` will take precedence.
 
