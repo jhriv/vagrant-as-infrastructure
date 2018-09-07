@@ -8,7 +8,7 @@ ROLES_PATH ?= roles
 SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= .ssh-config
 VAULTPASSWORDFILE ?= .vaultpassword
-VERSION := 0.5.0
+VERSION := 0.6.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
 
@@ -78,7 +78,7 @@ $(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id)
 $(INVENTORY): $(wildcard .vagrant/machines/*/*/id)
 	@echo 'Creating $@'
 	@( ( ( vagrant status; echo $$? >&3 ) \
-		|  perl -nE 'if (/^$$/.../^$$/){say qq($$1) if /^(\S+)/;}' > $@ ) 3>&1 ) \
+		|  perl -nE 'if(/^$$/.../^$$/){push@i,qq($$1)if/^(\S+)/}END{%g=map{$$_=>1}(map{/^(\S+)-/}@i);map{say}sort@i;for$$g(sort keys%g){say qq(\n[$$g]\n),join(qq(\n),grep{/^$$g-/}@i)}}' > $@ ) 3>&1 ) \
 		|  ( read x; exit $$x ) \
 		|| ( RET=$$?; rm $@; exit $$RET )
 
@@ -131,3 +131,30 @@ update:
 
 version:
 	@echo '$(VERSION)'
+
+ifeq (1,2) # Unobfuscated perl below; the above is canonical
+#!/usr/bin/env perl
+# use "vagrant status | perl -x Makefile" to test
+use v5.10; # replicates -E option
+
+while (<>) { # loop replicates -n option
+  # adds all box namess to @i; namess are the first word of second paragraph
+  if (/^$/.../^$/){
+    push @i, qq($1) if /^(\S+)/
+  }
+}
+
+# END block
+# using a hash as an ad-hoc uniq
+# find all records in @i with a dash, strip the trailing -suffix off, add to %g
+%g = map { $_=>1 } ( map {/^(\S+)-/} @i );
+
+map { say } sort @i; # prints sorted @i one record per line
+
+# for every %g (group), print it and all boxes with that prefix
+for $g (sort keys %g){
+  say qq(\n[$g]\n), join ( qq(\n), grep{/^$g-/} @i )
+}
+
+__END__
+endif
