@@ -109,7 +109,7 @@ python: ansible.cfg
 			sudo apt-get install --assume-yes python python-apt'
 
 $(ETC_HOSTS):
-	echo 'Downloading $@'
+	@echo 'Downloading $@'
 	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@
 
 etc-hosts: $(ETC_HOSTS) ansible.cfg
