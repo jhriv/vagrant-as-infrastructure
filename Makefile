@@ -24,14 +24,15 @@ menu:
 	@echo '"make all SSHCONFIG=sshconf INVENTORY=ansible-inv"'
 	@echo ''
 	@echo 'python: Installs python on Debian systems'
+	@echo 'ping: Pings all guests (via Ansible ping module)'
 	@echo 'root-key: Copies vagrant ssh key for root'
 	@echo 'clean: Removes ansible files'
 	@echo 'clean-roles: Removes installed ansible roles'
-	@echo 'force-roles: Update all roles, overwrting when required'
+	@echo 'force-roles: Update all roles, overwriting when required'
 	@echo 'etc-hosts: Add host records to all guests'
-	@echo 'Vagrantfile-force: Overwrites Vagrantfile with sample Vagrantfile'
+	@echo 'Vagrantfile: Downloads sample Vagrantfile and GUESTS.rb'
 	@echo 'version: Prints current version'
-	@echo 'udpate: Downloads latest version from github'
+	@echo 'update: Downloads latest version from github'
 	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
 
 all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip

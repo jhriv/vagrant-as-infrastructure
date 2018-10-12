@@ -9,11 +9,40 @@ The goal is to produce the convenient local playground, but skipping the ssh key
 * GNU Make
 * Vagrant
 * A provider (VirtualBox, VMware, etc)
+* Ansible
+* perl
+
+### Optional
+
+* curl
+
+## Usage
+
+* `make all` does all the following:
+   * `make up` Brings up all vagrant boxes
+   * `make roles` Populate Galaxy roles from "roles.yml" or "config/roles.yml"
+   * `make ansible.cfg` Create default ansible.cfg
+   * `make .ssh-config` Create ssh configuration
+   * `make .inventory` Create ansible inventory
+   * `make ip` Display the IPs of all the VMs
+
+Other commands:
+
+* `make Vagrantfile` Downloads sample Vagrantfile and GUESTS.rb
+* `make ping` Pings all guests via Ansible's ping module
+* `make python` Installs python on Debian systems
+* `make etc-hosts` Add host records to all guests
+* `make root-key` Copies vagrant ssh key for root
+* `make clean` Removes ansible files
+* `make clean-roles` Removes installed ansible roles
+* `make force-roles` Update all roles, overwriting when required
+* `make version` Prints current version
+* `make update` Downloads latest version from github
 
 ## Method
 
-* Uses a provided or downloaded `Vagrantfile` to create the application stack systems.
-  See `Vagrantfile.sample` for a starting point.
+* Uses a provided or downloaded `Vagrantfile` to create the application stack
+  systems. See `Vagrantfile.sample` for a starting point.
 * Install any required Galaxy roles (optional)
 * Write the ssh configuration (as provided by Vagrant)
 * Creates `ansible.cfg` that uses the above ssh configuration
@@ -21,7 +50,7 @@ The goal is to produce the convenient local playground, but skipping the ssh key
 
 ## Overrides
 
-The Makefile will accept command line arguments, or read from simarly named
+The Makefile will accept command line arguments, or read from similarly named
 environmental variables:
 
 * `ETC_HOSTS` etc-hosts playbook
@@ -35,16 +64,27 @@ environmental variables:
 
 ## Roles
 
-If `roles.yml` or `config/roles.yml` exists, the listed roles will be downloaded from Galaxy. If both exist, then `roles.yml` will take precedence.
+If `roles.yml` or `config/roles.yml` exists, the listed roles will be
+downloaded from Galaxy. If both exist, then `roles.yml` will take precedence.
 
 ## Hosts and Groups
 
 The inventory will group related hosts into groups. Related hosts all share
-the same prefix. web-1, web-2, web-3 will all be a part of [web]. Only the
-last suffix is considered. web-east-1 would be in only [web-east].
+the same prefix. `web-1`, `web-2`, `web-3` will all be a part of `[web]`. Only
+the last suffix is considered. `web-east-1` would be in only `[web-east]`.
+
+## etc-hosts
+
+Update all guests' `/etc/hosts` with all other guests' internal networking IPs
+to allow name-based addressing without relying on external DNS.
 
 ## Caveats
 
-The `clean-roles` target will clean _all_ the roles, even ones manually installed.
+The `clean-roles` target will clean _all_ the roles, even ones manually
+installed.
 
 The `ip` target may fail on non-Linux guests.
+
+The `update` target will overwrite the Makefile.
+
+The `etc-hosts` target works best when there is only one additional interface.
