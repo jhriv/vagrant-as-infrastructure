@@ -18,7 +18,7 @@ The goal is to produce the convenient local playground, but skipping the ssh key
 
 ## Usage
 
-* `make all` does all the following:
+* `make all` does each the following:
    * `make up` Brings up all vagrant boxes
    * `make roles` Populate Galaxy roles from "roles.yml" or "config/roles.yml"
    * `make ansible.cfg` Create default ansible.cfg
