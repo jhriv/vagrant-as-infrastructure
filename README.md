@@ -37,7 +37,7 @@ Other commands:
 * `make clean-roles` Removes installed ansible roles
 * `make force-roles` Update all roles, overwriting when required
 * `make version` Prints current version
-* `make update` Downloads latest version from github
+* `make update` Downloads latest version from GitHub
 
 ## Method
 
