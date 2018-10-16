@@ -11,7 +11,21 @@ SSHCONFIG ?= .ssh-config
 VAULTPASSWORDFILE ?= .vaultpassword
 VERSION := 1.0.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
-.PHONY: menu all clean clean-roles main up roles force-roles Vagrantfile-force ping ip update version
+.PHONY: menu \
+	all \
+	clean \
+	clean-roles \
+	etc-hosts \
+	ip \
+	main \
+	ping \
+	python \
+	roles \
+	roles-force \
+	root-key \
+	up \
+	update \
+	version
 
 menu:
 	@echo 'up: Create VMs'
@@ -19,44 +33,24 @@ menu:
 	@echo 'ansible.cfg: Create default ansible.cfg'
 	@echo '$(SSHCONFIG): Create ssh configuration (SSHCONFIG)'
 	@echo '$(INVENTORY): Create ansible inventory (INVENTORY)'
-	@echo 'main: Runs the ${MAIN} playbook, if present'
-	@echo 'ip: Display the IPs of all the VMs'
-	@echo 'all: Create all of the above'
-	@echo
-	@echo '"make all SSHCONFIG=sshconf INVENTORY=ansible-inv"'
+	@echo 'main: Runs the $(MAIN) playbook, if present'
+	@echo 'ip: Report the IPs of all the VMs'
+	@echo 'all: Do all of the above'
 	@echo ''
-	@echo 'python: Installs python on Debian systems'
-	@echo 'ping: Pings all guests (via Ansible ping module)'
-	@echo 'root-key: Copies vagrant ssh key for root'
 	@echo 'clean: Removes ansible files'
-	@echo 'clean-roles: Removes installed ansible roles'
-	@echo 'force-roles: Update all roles, overwriting when required'
+	@echo 'clean-roles: Removes everything from $(ROLES_PATH)'
 	@echo 'etc-hosts: Add host records to all guests'
-	@echo 'Vagrantfile: Downloads sample Vagrantfile and GUESTS.rb'
-	@echo 'version: Prints current version'
+	@echo 'menu: Display this menu'
+	@echo 'ping: Pings all guests (via Ansible ping module)'
+	@echo 'python: Installs python on Debian systems'
+	@echo 'roles-force: Update all roles, overwriting when required'
+	@echo 'root-key: Copies vagrant ssh key for root'
 	@echo 'update: Downloads latest version from GitHub'
 	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
+	@echo 'Vagrantfile: Downloads sample Vagrantfile and GUESTS.rb'
+	@echo 'version: Displays current version'
 
 all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) main ip
-
-clean:
-	@echo 'Removing ansible files'
-	@rm -f ansible.cfg $(SSHCONFIG) $(INVENTORY)
-
-clean-roles:
-	@echo 'Removing local ansible roles'
-	@rm -rf '$(ROLES_PATH)'/*
-
-up:
-	@vagrant up
-
-roles: $(wildcard roles.yml config/roles.yml)
-	@echo 'Downloading roles'
-	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)'
-
-force-roles: $(wildcard roles.yml config/roles.yml)
-	@echo 'Downloading roles (forced)'
-	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)' --force
 
 ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo 'Creating $@'
@@ -71,10 +65,20 @@ ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo '[ssh_connection]' >> $@
 	@echo 'ssh_args = -C -o ControlMaster=auto -o ControlPersist=60s -F $(SSHCONFIG)' >> $@
 
-$(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id)
-	@echo 'Creating $@'
-	@vagrant ssh-config > $@ \
-		|| ( RET=$$?; rm $@; exit $$RET; )
+clean:
+	@echo 'Removing ansible files'
+	@rm -f ansible.cfg $(SSHCONFIG) $(INVENTORY)
+
+clean-roles:
+	@echo 'Removing local ansible roles'
+	@rm -rf '$(ROLES_PATH)'/*
+
+$(ETC_HOSTS):
+	@echo 'Downloading $@'
+	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@
+
+etc-hosts: $(ETC_HOSTS) ansible.cfg
+	@ansible-playbook $<
 
 # Because of the pipe, extraordinary means have to be used to save the return
 # code of "vagrant status"
@@ -84,19 +88,6 @@ $(INVENTORY): $(wildcard .vagrant/machines/*/*/id)
 		|  perl -x $(WHOAMI) > $@ ) 3>&1 ) \
 		|  ( read x; exit $$x ) \
 		|| ( RET=$$?; rm $@; exit $$RET )
-
-Vagrantfile: | GUESTS.rb
-Vagrantfile GUESTS.rb:
-	@if [ -f $@.sample ]; then \
-		echo 'Copying $@.sample'; \
-		cp $@.sample $@; \
-	else \
-		echo 'Downloading $@'; \
-		curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@.sample; \
-	fi
-
-ping: ansible.cfg
-	@ansible -m ping all
 
 ip: ansible.cfg
 	@ansible all --args='hostname -I' \
@@ -110,18 +101,22 @@ main: ansible.cfg
 		&& ansible-playbook '$(MAIN)' \
 		|| echo 'No $(MAIN) present, skipping.'
 
+ping: ansible.cfg
+	@ansible -m ping all
+
 python: ansible.cfg
 	@ansible all \
 		--module-name=raw \
 		--args='sudo apt-get update; \
 			sudo apt-get install --assume-yes python python-apt'
 
-$(ETC_HOSTS):
-	@echo 'Downloading $@'
-	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@
+roles: $(wildcard roles.yml config/roles.yml)
+	@echo 'Downloading roles'
+	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)'
 
-etc-hosts: $(ETC_HOSTS) ansible.cfg
-	@ansible-playbook $<
+roles-force: $(wildcard roles.yml config/roles.yml)
+	@echo 'Downloading roles (forced)'
+	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)' --force
 
 root-key: ansible.cfg
 	@ansible all \
@@ -133,9 +128,27 @@ root-key: ansible.cfg
 		--module-name=copy \
 		--args='src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
 
+$(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id)
+	@echo 'Creating $@'
+	@vagrant ssh-config > $@ \
+		|| ( RET=$$?; rm $@; exit $$RET; )
+
+up:
+	@vagrant up
+
 update:
 	@echo 'Downloading latest Makefile'
 	@curl --silent --show-error --output $(WHOAMI) $(REPO)/master/Makefile
+
+Vagrantfile: | GUESTS.rb
+Vagrantfile GUESTS.rb:
+	@if [ -f $@.sample ]; then \
+		echo 'Copying $@.sample'; \
+		cp $@.sample $@; \
+	else \
+		echo 'Downloading $@'; \
+		curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@.sample; \
+	fi
 
 version:
 	@echo '$(VERSION)'
@@ -158,9 +171,9 @@ while (<>) {
 # find all records in @i with a dash, strip the trailing -suffix off, add to %g
 %g = map { $_=>1 } ( map {/^(\S+)-/} @i );
 
-map { say } sort @i; # prints sorted @i, one record per line
+map { say } sort @i; # displays sorted @i, one record per line
 
-# for every %g (group), print it and all boxes with that prefix
+# for every %g (group), display it and all boxes with that prefix
 for $g (sort keys %g) {
   say qq(\n[$g]\n), join ( qq(\n), grep { /^$g-/ } @i );
 }
