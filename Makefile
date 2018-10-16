@@ -2,22 +2,24 @@
 
 ETC_HOSTS ?= .etc-hosts.yml
 INVENTORY ?= .inventory
+MAIN ?= main.yml
 REPO ?= https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure
 RETRYPATH ?= .ansible-retry
 ROLES_PATH ?= roles
 SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= .ssh-config
 VAULTPASSWORDFILE ?= .vaultpassword
-VERSION := 0.6.1
+VERSION := 1.0.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
-.PHONY: menu all clean clean-roles up roles force-roles Vagrantfile-force ping ip update version
+.PHONY: menu all clean clean-roles main up roles force-roles Vagrantfile-force ping ip update version
 
 menu:
 	@echo 'up: Create VMs'
 	@echo 'roles: Populate Galaxy roles from "roles.yml" or "config/roles.yml"'
 	@echo 'ansible.cfg: Create default ansible.cfg'
-	@echo '$(SSHCONFIG): Create ssh configuration (use "make <file> SSHCONFIG=<file>" to override name)'
-	@echo '$(INVENTORY): Create ansible inventory (use "make <file> INVENTORY=<file>" to overrride name)'
+	@echo '$(SSHCONFIG): Create ssh configuration (SSHCONFIG)'
+	@echo '$(INVENTORY): Create ansible inventory (INVENTORY)'
+	@echo 'main: Runs the ${MAIN} playbook, if present'
 	@echo 'ip: Display the IPs of all the VMs'
 	@echo 'all: Create all of the above'
 	@echo
@@ -32,10 +34,10 @@ menu:
 	@echo 'etc-hosts: Add host records to all guests'
 	@echo 'Vagrantfile: Downloads sample Vagrantfile and GUESTS.rb'
 	@echo 'version: Prints current version'
-	@echo 'update: Downloads latest version from github'
+	@echo 'update: Downloads latest version from GitHub'
 	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
 
-all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) ip
+all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) main ip
 
 clean:
 	@echo 'Removing ansible files'
@@ -43,18 +45,18 @@ clean:
 
 clean-roles:
 	@echo 'Removing local ansible roles'
-	@rm -rf $(ROLES_PATH)/*
+	@rm -rf '$(ROLES_PATH)'/*
 
 up:
 	@vagrant up
 
 roles: $(wildcard roles.yml config/roles.yml)
 	@echo 'Downloading roles'
-	@ansible-galaxy install --role-file=$< --roles-path=$(ROLES_PATH)
+	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)'
 
 force-roles: $(wildcard roles.yml config/roles.yml)
 	@echo 'Downloading roles (forced)'
-	@ansible-galaxy install --role-file=$< --roles-path=$(ROLES_PATH) --force
+	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)' --force
 
 ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo 'Creating $@'
@@ -102,6 +104,11 @@ ip: ansible.cfg
 			echo 'Do you need to install python? (make python)'; \
 			exit $$ret; \
 		}
+
+main: ansible.cfg
+	@test -f '$(MAIN)' \
+		&& ansible-playbook '$(MAIN)' \
+		|| echo 'No $(MAIN) present, skipping.'
 
 python: ansible.cfg
 	@ansible all \
