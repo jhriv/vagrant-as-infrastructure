@@ -2,7 +2,9 @@
 
 Inspired by Maxim Chernyak's blog post [6 practices for super smooth Ansible experience](http://hakunin.com/six-ansible-practices).
 
-The goal is to produce the convenient local playground, but skipping the ssh key insertion (Vagrant does that for us) and editing /etc/hosts (not available on Windows) but still allowing full access to the guest VMs.
+The goal is to produce the convenient local playground, but skipping the ssh
+key insertion (Vagrant does that for us) and editing /etc/hosts (not available
+on Windows) but still allowing full access to the guest VMs.
 
 ## Requirements
 
@@ -18,31 +20,32 @@ The goal is to produce the convenient local playground, but skipping the ssh key
 
 ## Usage
 
-* `make all` does each the following:
+* `make all` does the following:
    * `make up` Brings up all vagrant boxes
    * `make roles` Populate Galaxy roles from "roles.yml" or "config/roles.yml"
    * `make ansible.cfg` Create default ansible.cfg
    * `make .ssh-config` Create ssh configuration
    * `make .inventory` Create ansible inventory
+   * `make main` Run main.yml playbook, if present
    * `make ip` Display the IPs of all the VMs
 
 Other commands:
 
 * `make Vagrantfile` Downloads sample Vagrantfile and GUESTS.rb
+* `make clean-roles` Removes installed ansible roles
+* `make clean` Removes ansible files
+* `make etc-hosts` Add host records to all guests
+* `make force-roles` Update all roles, overwriting when required
 * `make ping` Pings all guests via Ansible's ping module
 * `make python` Installs python on Debian systems
-* `make etc-hosts` Add host records to all guests
 * `make root-key` Copies vagrant ssh key for root
-* `make clean` Removes ansible files
-* `make clean-roles` Removes installed ansible roles
-* `make force-roles` Update all roles, overwriting when required
+* `make update` Downloads latest version from github
 * `make version` Prints current version
-* `make update` Downloads latest version from GitHub
 
 ## Method
 
 * Uses a provided or downloaded `Vagrantfile` to create the application stack
-  systems. See `Vagrantfile.sample` for a starting point.
+  systems. See `Vagrantfile.sample` and `GUESTS.rb.sample` for a starting point.
 * Install any required Galaxy roles (optional)
 * Write the ssh configuration (as provided by Vagrant)
 * Creates `ansible.cfg` that uses the above ssh configuration
@@ -55,6 +58,7 @@ environmental variables:
 
 * `ETC_HOSTS` etc-hosts playbook
 * `INVENTORY` ansible inventory file
+* `MAIN` default playbok to run, if present
 * `REPO` upstream repository
 * `RETRYPATH` directory to play .retry files
 * `ROLES_PATH` ansible roles path
@@ -88,3 +92,6 @@ The `ip` target may fail on non-Linux guests.
 The `update` target will overwrite the Makefile.
 
 The `etc-hosts` target works best when there is only one additional interface.
+
+Certain variables, `ETC_HOSTS`, `INVENTORY`, and `SSHCONFIG`, will break if
+there is embedded whitespace.
