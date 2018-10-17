@@ -39,7 +39,7 @@ Other commands:
 * `make ping` Pings all guests via Ansible's ping module
 * `make python` Installs python on Debian systems
 * `make root-key` Copies vagrant ssh key for root
-* `make update` Downloads latest version from github
+* `make update` Downloads latest version from GitHub
 * `make version` Displays current version
 
 ## Method
