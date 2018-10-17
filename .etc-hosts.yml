@@ -11,11 +11,11 @@
         state: present
         # on each host, for every host:
         #  if there are more than two network interfaces:
-        #   Print the IP address of the first interface that is neither the
+        #   Display the IP address of the first interface that is neither the
         #   default interface, nor loopback.
         #   if a domainname is defined:
-        #    Print the hostname + domainname
-        #   Print the hostname
+        #    Display the hostname + domainname
+        #   Display the hostname
         line: '{{
           hostvars[item][
             "ansible_" ~ (hostvars[item].ansible_interfaces
