@@ -34,7 +34,9 @@ Other commands:
 * `make Vagrantfile` Downloads sample Vagrantfile and GUESTS.rb
 * `make clean-roles` Removes installed ansible roles
 * `make clean` Removes ansible files
+* `make copyright` Displays copyright information
 * `make etc-hosts` Add host records to all guests
+* `make license` Displays license information
 * `make roles-force` Update all roles, overwriting when required
 * `make ping` Pings all guests via Ansible's ping module
 * `make python` Installs python on Debian systems
