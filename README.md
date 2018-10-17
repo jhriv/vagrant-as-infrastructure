@@ -40,7 +40,7 @@ Other commands:
 * `make python` Installs python on Debian systems
 * `make root-key` Copies vagrant ssh key for root
 * `make update` Downloads latest version from github
-* `make version` Prints current version
+* `make version` Displays current version
 
 ## Method
 
