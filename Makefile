@@ -9,14 +9,16 @@ ROLES_PATH ?= roles
 SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= .ssh-config
 VAULTPASSWORDFILE ?= .vaultpassword
-VERSION := 1.0.0
+VERSION := 1.0.1
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
 	clean \
 	clean-roles \
+	copyright \
 	etc-hosts \
 	ip \
+	license \
 	main \
 	ping \
 	python \
@@ -39,7 +41,9 @@ menu:
 	@echo ''
 	@echo 'clean: Removes ansible files'
 	@echo 'clean-roles: Removes everything from $(ROLES_PATH)'
+	@echo 'copyright: Displays copyright information'
 	@echo 'etc-hosts: Add host records to all guests'
+	@echo 'license: Displays license information'
 	@echo 'menu: Display this menu'
 	@echo 'ping: Pings all guests (via Ansible ping module)'
 	@echo 'python: Installs python on Debian systems'
@@ -73,6 +77,9 @@ clean-roles:
 	@echo 'Removing local ansible roles'
 	@rm -rf '$(ROLES_PATH)'/*
 
+copyright:
+	@echo 'Copyright 2016-2018 John H. Robinson, IV'
+
 $(ETC_HOSTS):
 	@echo 'Downloading $@'
 	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@
@@ -95,6 +102,9 @@ ip: ansible.cfg
 			echo 'Do you need to install python? (make python)'; \
 			exit $$ret; \
 		}
+
+license:
+	@curl --silent --show-error $(REPO)/$(VERSION)/LICENSE
 
 main: ansible.cfg
 	@test -f '$(MAIN)' \
