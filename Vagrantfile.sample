@@ -3,7 +3,7 @@
 
 # Reasonable Defaults - can be overwridden with environmental variables
 _IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
-_DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'centos/7')
+_DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'ubuntu/bionic64')
 
 # List guests separately
 require_relative 'GUESTS';
