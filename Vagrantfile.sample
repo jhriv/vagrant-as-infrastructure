@@ -1,24 +1,28 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# Reasonable Defaults - can be overwridden with environmental variables
+# Reasonable Defaults - can be overridden with environmental variables
 _IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
 _DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'ubuntu/bionic64')
 
-# List guests separately
+# List guests in separate file
 require_relative 'GUESTS';
 
 Vagrant.configure(2) do |config|
   GUESTS.each_with_index do |guest, i|
     config.vm.define "#{guest[:name]}", primary: i==0 do |box|
       box.vm.box_check_update = false
-      # OS
+
+      # Define OS
       box.vm.box = ( guest.key?(:box) ? guest[:box] : _DEFAULT_BOX )
+
+      # sync'd folder
       unless guest.has_key?(:sync)
          box.vm.synced_folder '.', '/vagrant', disabled: true
       else
          box.vm.synced_folder '.', '/vagrant', disabled: ! guest[:sync]
       end
+
       # IP
       if guest.has_key?(:ip)
         if guest[:ip] == 'dhcp'
@@ -28,6 +32,7 @@ Vagrant.configure(2) do |config|
             ip: guest[:ip].to_s.match('\.') ? guest[:ip] : "#{_IP_NETWORK}.#{guest[:ip].to_s}"
         end
       end
+
       # Port forwarding
       if guest.has_key?(:ports)
         guest[:ports].each do |port|
@@ -45,7 +50,8 @@ Vagrant.configure(2) do |config|
           end
         end
       end
-      # Provider specific settings
+
+      #  CPU / GUI / RAM
       box.vm.provider "virtualbox" do |v|
         v.cpus   = guest[:cpus]   if guest.has_key?(:cpus)
         v.gui    = guest[:gui]    if guest.has_key?(:gui)
@@ -67,18 +73,20 @@ Vagrant.configure(2) do |config|
           ? guest[:needs_python]
           : /ubuntu|debian/i =~ box.vm.box
         box.vm.provision 'shell',
+          name: 'Installing python',
           inline: <<-'SCRIPT'
             export DEBIAN_FRONTEND=noninteractive
             apt-get update  --quiet=2
             apt-get install --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes python python-apt
           SCRIPT
       end
+
+      # Update OS
       if guest.has_key?(:update) && guest[:update]
         box.vm.provision 'shell',
           inline: <<-'SCRIPT'
             if command -v apt-get > /dev/null; then
               export DEBIAN_FRONTEND=noninteractive
-              echo apty
               apt-get update  --quiet=2
               apt-get upgrade --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes
             fi
@@ -130,6 +138,7 @@ Vagrant.configure(2) do |config|
           end
         end
       end
-    end
-  end
-end
+
+    end # config.vm.define
+  end # GUESTS.each_with_index
+end # Vagrant.configure
