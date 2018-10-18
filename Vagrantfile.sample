@@ -61,8 +61,11 @@ Vagrant.configure(2) do |config|
         v.vmx["memsize"]  = guest[:memory] if guest.has_key?(:memory)
         v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
       end
-      # Some boxes lack python
-      if guest.has_key?(:needs_python) && guest[:needs_python]
+
+      # Install python, if requested / assumed needed
+      if guest.has_key?(:needs_python) \
+          ? guest[:needs_python]
+          : /ubuntu|debian/i =~ box.vm.box
         box.vm.provision 'shell',
           inline: <<-'SCRIPT'
             export DEBIAN_FRONTEND=noninteractive

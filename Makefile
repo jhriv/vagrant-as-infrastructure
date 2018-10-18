@@ -117,8 +117,10 @@ ping: ansible.cfg
 python: ansible.cfg
 	@ansible all \
 		--module-name=raw \
-		--args='sudo apt-get update; \
-			sudo apt-get install --assume-yes python python-apt'
+		--args='command -v apt-get &>/dev/null \
+			&& ( sudo apt-get update; \
+			     sudo apt-get install --assume-yes python python-apt ) \
+			|| true'
 
 roles: $(wildcard roles.yml config/roles.yml)
 	@echo 'Downloading roles'
