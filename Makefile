@@ -140,9 +140,16 @@ root-key: ansible.cfg
 		--module-name=copy \
 		--args='src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
 
+# Only get the configs of running boxes. If no boxes, exist, call "up" target
 $(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id)
+# "test -f" returns true; wildcard returns empy if nothing matches;
+# appending / (which will never be a file) ensures failure if no vagrant
+# boxes exist, in any state
+# No running vagrant boxes still results in an error
+	@test -f $(firstword $(wildcard .vagrant/machines/*/*/id) / ) || $(MAKE) up
 	@echo 'Creating $@'
-	@vagrant ssh-config > $@ \
+# We lose the status of "vagrant status". Oh, the irony.
+	@vagrant ssh-config $$( vagrant status | grep ' running ' | awk '{print $$1}' ) > $@ \
 		|| ( RET=$$?; rm $@; exit $$RET; )
 
 up:
