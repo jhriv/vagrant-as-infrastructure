@@ -84,6 +84,49 @@ Vagrant.configure(2) do |config|
             fi
           SCRIPT
       end
+
+      # File provisioner
+      if guest.has_key?(:file)
+        if guest[:file].is_a? Array
+          guest[:file].each do |file|
+            box.vm.provision "file", source: file, destination: "#{file}"
+          end
+        else
+          box.vm.provision "file", source: guest[:file], destination: "#{guest[:file]}"
+        end
+      end
+
+      # Shell provisioner
+      if guest.has_key?(:shell)
+        if guest[:shell].is_a? Array
+          guest[:shell].each do |script|
+            box.vm.provision "shell" do |shell|
+              shell.path = script
+              shell.name = File.basename(script)
+            end
+          end
+        else
+          box.vm.provision "shell" do |shell|
+            shell.path = guest[:shell]
+            shell.name = File.basename(guest[:shell])
+          end
+        end
+      end
+
+      # Ansible provisioner
+      if guest.has_key?(:ansible)
+        if guest[:ansible].is_a? Array
+          guest[:ansible].each do |playbook|
+            box.vm.provision "ansible" do |ansible|
+              ansible.playbook = playbook
+            end
+          end
+        else
+          box.vm.provision "ansible" do |ansible|
+            ansible.playbook = guest[:ansible]
+          end
+        end
+      end
     end
   end
 end
