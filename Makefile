@@ -9,7 +9,7 @@ ROLES_PATH ?= roles
 SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= .ssh-config
 VAULTPASSWORDFILE ?= .vaultpassword
-VERSION := 1.0.1
+VERSION := 1.1.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -30,11 +30,11 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 	version
 
 menu:
-	@echo 'up: Create VMs'
-	@echo 'roles: Populate Galaxy roles from "roles.yml" or "config/roles.yml"'
-	@echo 'ansible.cfg: Create default ansible.cfg'
+	@echo 'up: Brings up all Vagrant boxes (same as "vagrant up")'
+	@echo 'roles: Install Ansible Galaxy roles from "roles.yml" or "config/roles.yml"'
 	@echo '$(SSHCONFIG): Create ssh configuration (SSHCONFIG)'
 	@echo '$(INVENTORY): Create ansible inventory (INVENTORY)'
+	@echo 'ansible.cfg: Create default ansible.cfg'
 	@echo 'main: Runs the $(MAIN) playbook, if present'
 	@echo 'ip: Report the IPs of all the VMs'
 	@echo 'all: Do all of the above'
@@ -52,9 +52,9 @@ menu:
 	@echo 'update: Downloads latest version from GitHub'
 	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
 	@echo 'Vagrantfile: Downloads sample Vagrantfile and GUESTS.rb'
-	@echo 'version: Displays current version'
+	@echo 'version: Displays version'
 
-all: up roles ansible.cfg $(SSHCONFIG) $(INVENTORY) main ip
+all: up roles $(SSHCONFIG) $(INVENTORY) ansible.cfg main ip
 
 ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo 'Creating $@'
@@ -181,6 +181,7 @@ use v5.10;
 
 while (<>) {
   # adds all box names to @i; names are the first word of second paragraph
+  # boxes are collected, despite state (running, poweroff, not created)
   if (/^$/.../^$/) {
     push @i, qq($1) if /^(\S+)/;
   }
