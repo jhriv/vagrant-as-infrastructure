@@ -59,7 +59,7 @@ Vagrant.configure(2) do |config|
       end
       box.vm.provider "libvirt" do |v|
         v.cpus            = guest[:cpus]   if guest.has_key?(:cpus)
-        v.graphics_type   = guest[:gui]    if guest.has_key?(:gui)
+        v.graphics_type   = 'sdl'          if guest.has_key?(:gui)
         v.memory          = guest[:memory] if guest.has_key?(:memory)
       end
       config.vm.provider "vmware_fusion" do |v|
