@@ -9,7 +9,7 @@ ROLES_PATH ?= roles
 SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= .ssh-config
 VAULTPASSWORDFILE ?= .vaultpassword
-VERSION := 1.1.0
+VERSION := 1.2.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
