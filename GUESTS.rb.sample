@@ -9,6 +9,7 @@
 #     variabl, or 'dhcp'. Default none.
 # ports: (optional), Array of ports to forward. Can either be integers, or a
 #     hash with supported options. Default none (ssh only)
+# provider: (optional), Provider to use. Default virtualbox or VAGRANT_DEFAULT_PROVIDER
 # sync: (optional) Should /vagrant be mounted? Default false
 # update: (optional) Updates all pacakges. Default false
 # needs_python: (optional) Install python packages? Default false
