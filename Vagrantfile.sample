@@ -14,17 +14,10 @@ Vagrant.configure(2) do |config|
     config.vm.define "#{guest[:name]}", primary: i==0 do |box|
       box.vm.box_check_update = false
 
-      # Define OS
+      # :box Define OS
       box.vm.box = ( guest.key?(:box) ? guest[:box] : _DEFAULT_BOX )
 
-      # sync'd folder
-      unless guest.has_key?(:sync)
-         box.vm.synced_folder '.', '/vagrant', disabled: true
-      else
-         box.vm.synced_folder '.', '/vagrant', disabled: ! guest[:sync]
-      end
-
-      # IP
+      # :ip IP
       if guest.has_key?(:ip)
         if guest[:ip] == 'dhcp'
           box.vm.network 'private_network', type: guest[:ip]
@@ -34,7 +27,22 @@ Vagrant.configure(2) do |config|
         end
       end
 
-      # Port forwarding
+      # :needs_python Install python, if requested / assumed needed
+      if guest.has_key?(:needs_python) \
+          ? guest[:needs_python]
+          : /ubuntu|debian/i =~ box.vm.box
+        box.vm.provision 'shell',
+          name: 'Installing python',
+          inline: <<-'SCRIPT'
+            if command -v apt-get > /dev/null; then
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update  --quiet=2
+              apt-get install --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes python python-apt
+            fi
+          SCRIPT
+      end
+
+      # :ports Port forwarding
       if guest.has_key?(:ports)
         guest[:ports].each do |port|
           if port.is_a? Integer
@@ -52,51 +60,45 @@ Vagrant.configure(2) do |config|
         end
       end
 
-      # Povider
+      # :provider Provider
       if guest.has_key?(:provider)
         box.vm.provider "#{guest[:provider]}"
       else
         box.vm.provider "#{_DEFAULT_PROVIDER}"
       end
 
-      #  CPU / GUI / RAM
+      #  :cpus/:gui:/:memory CPU / GUI / RAM
       box.vm.provider "virtualbox" do |v|
         v.cpus   = guest[:cpus]   if guest.has_key?(:cpus)
         v.gui    = guest[:gui]    if guest.has_key?(:gui)
         v.memory = guest[:memory] if guest.has_key?(:memory)
       end
       config.vm.provider "parallels" do |v|
-        v.memory = guest[:memory] if guest.has_key?(:memory)
         v.cpus   = guest[:cpus]   if guest.has_key?(:cpus)
         if guest.has_key?(:gui)
           v.customize ["set", :id, "--startup-view", guest[:gui] ? "window" : "headless"]
         end
+        v.memory = guest[:memory] if guest.has_key?(:memory)
       end
       config.vm.provider "vmware_fusion" do |v|
+        v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
         v.gui             = guest[:gui]    if guest.has_key?(:gui)
         v.vmx["memsize"]  = guest[:memory] if guest.has_key?(:memory)
-        v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
       end
       config.vm.provider "vmware_workstation" do |v|
+        v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
         v.gui             = guest[:gui]    if guest.has_key?(:gui)
         v.vmx["memsize"]  = guest[:memory] if guest.has_key?(:memory)
-        v.vmx["numvcpus"] = guest[:cpus]   if guest.has_key?(:cpus)
       end
 
-      # Install python, if requested / assumed needed
-      if guest.has_key?(:needs_python) \
-          ? guest[:needs_python]
-          : /ubuntu|debian/i =~ box.vm.box
-        box.vm.provision 'shell',
-          name: 'Installing python',
-          inline: <<-'SCRIPT'
-            export DEBIAN_FRONTEND=noninteractive
-            apt-get update  --quiet=2
-            apt-get install --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes python python-apt
-          SCRIPT
+      # :sync Sync'd folder
+      unless guest.has_key?(:sync)
+        box.vm.synced_folder '.', '/vagrant', disabled: true
+      else
+        box.vm.synced_folder '.', '/vagrant', disabled: ! guest[:sync]
       end
 
-      # Update OS
+      # :update Update OS
       if guest.has_key?(:update) && guest[:update]
         box.vm.provision 'shell',
           inline: <<-'SCRIPT'
@@ -111,7 +113,24 @@ Vagrant.configure(2) do |config|
           SCRIPT
       end
 
-      # File provisioner
+      ## PROVISIONERS
+
+      # Ansible
+      if guest.has_key?(:ansible)
+        if guest[:ansible].is_a? Array
+          guest[:ansible].each do |playbook|
+            box.vm.provision "ansible" do |ansible|
+              ansible.playbook = playbook
+            end
+          end
+        else
+          box.vm.provision "ansible" do |ansible|
+            ansible.playbook = guest[:ansible]
+          end
+        end
+      end
+
+      # File
       if guest.has_key?(:file)
         if guest[:file].is_a? Array
           guest[:file].each do |file|
@@ -122,7 +141,7 @@ Vagrant.configure(2) do |config|
         end
       end
 
-      # Shell provisioner
+      # Shell
       if guest.has_key?(:shell)
         if guest[:shell].is_a? Array
           guest[:shell].each do |script|
@@ -135,21 +154,6 @@ Vagrant.configure(2) do |config|
           box.vm.provision "shell" do |shell|
             shell.path = guest[:shell]
             shell.name = File.basename(guest[:shell])
-          end
-        end
-      end
-
-      # Ansible provisioner
-      if guest.has_key?(:ansible)
-        if guest[:ansible].is_a? Array
-          guest[:ansible].each do |playbook|
-            box.vm.provision "ansible" do |ansible|
-              ansible.playbook = playbook
-            end
-          end
-        else
-          box.vm.provision "ansible" do |ansible|
-            ansible.playbook = guest[:ansible]
           end
         end
       end
