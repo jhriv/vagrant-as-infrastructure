@@ -4,6 +4,7 @@
 # Reasonable Defaults - can be overridden with environmental variables
 _IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
 _DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'ubuntu/bionic64')
+_DEFAULT_PROVIDER=ENV.fetch('VAGRANT_DEFAULT_PROVIDER', 'virtualbox')
 
 # List guests in separate file
 require_relative 'GUESTS';
@@ -51,11 +52,25 @@ Vagrant.configure(2) do |config|
         end
       end
 
+      # Povider
+      if guest.has_key?(:provider)
+        box.vm.provider "#{guest[:provider]}"
+      else
+        box.vm.provider "#{_DEFAULT_PROVIDER}"
+      end
+
       #  CPU / GUI / RAM
       box.vm.provider "virtualbox" do |v|
         v.cpus   = guest[:cpus]   if guest.has_key?(:cpus)
         v.gui    = guest[:gui]    if guest.has_key?(:gui)
         v.memory = guest[:memory] if guest.has_key?(:memory)
+      end
+      config.vm.provider "parallels" do |v|
+        v.memory = guest[:memory] if guest.has_key?(:memory)
+        v.cpus   = guest[:cpus]   if guest.has_key?(:cpus)
+        if guest.has_key?(:gui)
+          v.customize ["set", :id, "--startup-view", guest[:gui] ? "window" : "headless"]
+        end
       end
       config.vm.provider "vmware_fusion" do |v|
         v.gui             = guest[:gui]    if guest.has_key?(:gui)
