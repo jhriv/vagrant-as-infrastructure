@@ -2,19 +2,30 @@
 # vi: set ft=ruby :
 
 # List guests here, one per record.
-# name: (REQUIRED), name of the box
-# box: (optional), box to build from. Default DEFAULT_BOX
-# ip: (optional), IP address for local networking. Can be full dotted quad,
+# name: (REQUIRED) Name of the box
+# box: (optional) Box to build from. Default ubuntu/bionic64 or $DEFAULT_BOX
+# cpus: (optional) Number of CPUs. Default as per box (usually 1)
+# gui: (optional) Start windowed? Default false
+# ip: (optional) IP address for local networking. Can be full dotted quad,
 #     the last octet, which will be appended to the IP_NETWORK environmental
-#     variabl, or 'dhcp'. Default none.
-# ports: (optional), Array of ports to forward. Can either be integers, or a
-#     hash with supported options. Default none (ssh only)
-# provider: (optional), Provider to use. Default virtualbox or VAGRANT_DEFAULT_PROVIDER
-# sync: (optional) Should /vagrant be mounted? Default false
-# update: (optional) Updates all pacakges. Default false
-# needs_python: (optional) Install python packages? Default false
+#     variable, or 'dhcp'. Default none
+# memory: (optional) Ram in MB. Default as per box (usually 1024)
+# needs_python: (optional) Install python packages? Default true
 #     (Debian/Ubuntu only)
-# If there are multiple systems, the first one will be marked "primary"
+# ports: (optional) Array of ports to forward. Can either be integers, or a
+#     hash with supported options (see below).
+#     Default none (only ssh port will be forwarded)
+# provider: (optional) Provider to use. Default virtualbox or
+#     $VAGRANT_DEFAULT_PROVIDER
+# sync: (optional) Should /vagrant be mounted? Default false
+# update: (optional) Update all pacakges? Default false
+
+# PROVISIONERS
+# ansible: Playbook (or array of playbooks) to supply to ansible provisioner
+# file: Filename (or array of filenames) to supply to file provisioner
+# shell: Script (or array of scripts) to supply to shell provisioner
+
+# If there are multiple guests, the first one will be marked "primary"
 
 GUESTS = [
   { name: 'default' },
@@ -22,5 +33,15 @@ GUESTS = [
   #{ name: 'web-2', ip: '192.168.1.3' },
   #{ name: 'db-1' },
   #{ name: 'app', sync: true, ports: [ 8088, { guest: 80, host: 8000 } ] },
-  #{ name: 'datastore', box: 'ubuntu/bionic64', needs_python: true },
+  #{ name: 'datastore', box: 'ubuntu/bionic64', needs_python: false },
 ]
+
+
+# ports: supported options:
+#   guest: (REQUIRED) guest port
+#   auto_correct: (optional) Adjust port in case of collision? Default true
+#   guest_ip: (optional) Default nil
+#   host_ip: (optional) Default nil
+#   host: (optional) host port. Default guest port
+#   id: (optional) Friendly name. Default nil
+#   protocol: (optional) Default nil

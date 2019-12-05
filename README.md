@@ -25,7 +25,7 @@ or
 
 * [GNU Make][M]
 * [Vagrant][V]
-* A provider ([VirtualBox][VB], [VMware][VM], [etc][OP])
+* A provider ([VirtualBox][VB], [Parallels][PL], [VMware][VM], [etc][OP])
 * [Ansible][A]
 * [perl][P]
 
@@ -78,7 +78,7 @@ environmental variables:
 
 * `ETC_HOSTS` etc-hosts playbook[*](#caveats)
 * `INVENTORY` ansible inventory file[*](#caveats)
-* `MAIN` default playbok to run, if present
+* `MAIN` default playbook to run, if present
 * `REPO` upstream repository
 * `RETRYPATH` directory to place .retry files
 * `ROLES_PATH` ansible roles path
@@ -111,14 +111,20 @@ without having to redefine all the boxes.
 
 Options are:
 - name: **[MANDATORY]** (string) Name of box
-- box: (string) guest OS (`ubuntu/bionic64`, `centos/7`, etc)
-  - default _`DEFAULT_BOX`_
+- box: (string) guest OS `ubuntu/bionic64`, `centos/7`, etc
+  (default ubuntu/bionic64, or _`DEFAULT_BOX`_)
+- cpus: (integer) Number of CPUs to assign (default _per box_)
+- gui: (boolean) Allocate GUI (default _false_)
 - ip: (string) Additional IP for guest-to-guest communication
   - Can be fully expressed dotted quad (10.1.2.3)
   - Can be final octet only (3)
   - Can be 'dhcp' to allow provider to allocate
   - default _nil_
-- ports: (array) Ports to forward. Can be a hash, to further refine defintion
+- memory: (integer) Memory in KB (default _per box_)
+- needs_python: (boolean) Install python/python-apt in guest
+  - default _true_ for Debian/Ubuntu
+  - default _false_ for all others
+- ports: (array) Ports to forward. Can be a hash, to further refine definition
   - auto_correct: move host port in case of collision (default _true_)
   - guest_ip: (string) (default _nil_)
   - host_ip: (string) (default _nil_)
@@ -126,14 +132,14 @@ Options are:
   - id: (string) friendly name (default _nil_)
   - protocol: (string) tcp or udp (default _nil_)
   - default _nil_
+- provisioner: (string) Name of provisioner to use (default virtualbox or
+  _VAGRANT_DEFAULT_PROVIDER_)
 - sync: (boolean) Sync local folder to guest (default _false_)
-- cpus: (integer) Number of CPUs to assign (default _per box_)
-- gui: (boolean) Allocate GUI (default _false_)
-- memory: (integer) Memory in KB (default _per box_)
-- needs_python: (boolean) Install python/python-apt in guest
-  - default _true_ for Debian/Ubuntu
-  - default _false_ for all others
 - update: (boolean) Update guest OS packages (default _false_)
+_Available provisioners_
+- ansible: (string|array of strings) playbook to run at provisioning
+  - can be an array, for multiple playbook provisioners
+  - default _nil_
 - file: (string|array of strings) File provisioner, copies file to guest
   - relative filename relative to $HOME
   - absolute filename absolute in guest
@@ -141,9 +147,6 @@ Options are:
   - default _nil_
 - shell: (string|array of strings) script to run at provisioning
   - can be an array, for multiple shell provisioners
-  - default _nil_
-- ansible: (string|array of strings) playbook to run at provisioning
-  - can be an array, for multiple playbook provisioners
   - default _nil_
 
 See [GUESTS.rb.sample][G] for examples.
@@ -153,8 +156,6 @@ See [GUESTS.rb.sample][G] for examples.
 A box with a name that includes "Debian" or "Ubuntu" (case insensitive) will
 have `python` and `python-apt` installed automatically. This can be overridden
 by setting `needs_python: false` in the `GUESTS.rb` defintion for the box.
-
-If `needs_python: true` is set, `apt-get` needs to be present.
 
 ## Caveats
 
@@ -179,6 +180,7 @@ there is embedded whitespace.
 [M]: https://www.gnu.org/software/make/
 [OP]: https://www.vagrantup.com/docs/providers/
 [P]: https://www.perl.org/get.html
+[PL]: https://www.parallels.com/
 [VB]: https://www.virtualbox.org/wiki/Downloads
 [V]: https://www.vagrantup.com/downloads.html
 [VM]: https://www.vmware.com/
