@@ -132,8 +132,6 @@ Options are:
   - id: (string) friendly name (default _nil_)
   - protocol: (string) tcp or udp (default _nil_)
   - default _nil_
-- provisioner: (string) Name of provisioner to use (default virtualbox or
-  _VAGRANT_DEFAULT_PROVIDER_)
 - sync: (boolean) Sync local folder to guest (default _false_)
 - update: (boolean) Update guest OS packages (default _false_)
 _Available provisioners_
@@ -148,6 +146,8 @@ _Available provisioners_
 - shell: (string|array of strings) script to run at provisioning
   - can be an array, for multiple shell provisioners
   - default _nil_
+
+Setting `PROVIDER` will set the provider for all guests.
 
 See [GUESTS.rb.sample][G] for examples.
 

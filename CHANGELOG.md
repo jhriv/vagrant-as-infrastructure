@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2019-12-05
+### Fixed
+- Provider can be only per vagrant up invocation
+
+## [1.2.0] - 2019-12-04
+### Added
+- Per machine selectable provider
+- Support Parallels as a provider
+
 ## [1.1.0] - 2018-10-18
 ### Added
 - `file`, `shell`, and `ansible` provisioners in Vagrantfile/GUESTS.rb
