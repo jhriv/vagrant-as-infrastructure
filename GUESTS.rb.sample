@@ -25,7 +25,14 @@
 # file: Filename (or array of filenames) to supply to file provisioner
 # shell: Script (or array of scripts) to supply to shell provisioner
 
+# PROVIDER:
+# Select the provider to use. This is a global, it can be set only once per
+# vagrant up invocation. Command line will override this value.
+# Default virtualbox or $VAGRANT_DEFAULT_PROVIDER
+
 # If there are multiple guests, the first one will be marked "primary"
+
+PROVIDER = 'virtualbox'
 
 GUESTS = [
   { name: 'default' },
