@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2019-12-05
+### Fixed
+- Machine settings are per-machine for all providers
+
 ## [1.3.0] - 2019-12-05
 ### Fixed
 - Provider can be only per vagrant up invocation
