@@ -27,6 +27,25 @@ GUESTS = [
   #}
 ]
 
+# Sample box list:
+
+# centos/8
+# centos/7
+# centos/6
+# debian/buster64 (10)
+# debian/stretch64 (9)
+# debian/jessie64 (8)
+# ubuntu/groovy64 (20.10)
+# ubuntu/focal64 (20.04 LTS)
+# ubuntu/eoan64 (19.10)
+# ubuntu/bionic64 (18.04 LTS)
+# ubuntu/xenial64 (16.04 LTS)
+# ubuntu/trusy64 (14.04 LTS, in ESM)
+# ubuntu/precise64 (12.04 LTS, in ESM)
+# bento/centos-[6,7,8]
+# bento/ubuntu-[16.04,18.04,20.04]
+# bento/debian-[8,9,10]
+
 # PROVIDER = 'parallels'
 # PROVIDER = 'virtualbox'
 
