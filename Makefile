@@ -9,7 +9,7 @@ ROLES_PATH ?= roles
 SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= .ssh-config
 VAULTPASSWORDFILE ?= .vaultpassword
-VERSION := 1.3.4
+VERSION := 2.0.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -31,7 +31,7 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 
 menu:
 	@echo 'up: Brings up all Vagrant boxes (same as "vagrant up")'
-	@echo 'roles: Install Ansible Galaxy roles from "roles.yml" or "config/roles.yml"'
+	@echo 'roles: Install Ansible Galaxy roles from "requirements.yml" or "config/requirements.yml"'
 	@echo '$(SSHCONFIG): Create ssh configuration (SSHCONFIG)'
 	@echo '$(INVENTORY): Create ansible inventory (INVENTORY)'
 	@echo 'ansible.cfg: Create default ansible.cfg'
@@ -126,11 +126,11 @@ python: ansible.cfg
 			        sudo apk add python3 ) \
 	                ) || true'
 
-roles: $(wildcard roles.yml config/roles.yml)
+roles: $(wildcard requirements.yml config/requirements.yml)
 	@echo 'Downloading roles'
 	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)'
 
-roles-force: $(wildcard roles.yml config/roles.yml)
+roles-force: $(wildcard requirements.yml config/requirements.yml)
 	@echo 'Downloading roles (forced)'
 	@ansible-galaxy install --role-file=$< --roles-path='$(ROLES_PATH)' --force
 
