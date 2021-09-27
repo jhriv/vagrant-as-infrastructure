@@ -117,6 +117,14 @@ Vagrant.configure(2) do |config|
           SCRIPT
       end
 
+      # :user Set ssh user
+      if guest.has_key?(:user)
+        VAGRANT_COMMAND = ARGV[0]
+        if VAGRANT_COMMAND == "ssh"
+          config.ssh.username = guest[:user]
+        end
+      end
+
       ## PROVISIONERS
 
       # Ansible
