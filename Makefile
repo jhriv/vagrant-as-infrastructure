@@ -62,6 +62,7 @@ ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo 'inventory = $(INVENTORY)' >> $@
 	@echo 'retry_files_save_path = $(RETRYPATH)' >> $@
 	@echo 'roles_path = $(ROLES_PATH)' >> $@
+	@echo 'stdout_callback = debug' >> $@
 	@test -f $(VAULTPASSWORDFILE) \
 		&& echo 'vault_password_file = $(VAULTPASSWORDFILE)' >> $@ \
 		|| true
