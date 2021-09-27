@@ -121,7 +121,10 @@ python: ansible.cfg
 		--args='command -v apt-get &>/dev/null \
 			&& ( sudo apt-get update; \
 			     sudo apt-get install --assume-yes python python-apt ) \
-			|| true'
+			|| ( command -v apk &> /dev/null \
+			   && ( sudo apk update; \
+			        sudo apk add python3 ) \
+	                ) || true'
 
 roles: $(wildcard roles.yml config/roles.yml)
 	@echo 'Downloading roles'
