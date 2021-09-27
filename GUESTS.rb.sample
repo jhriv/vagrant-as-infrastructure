@@ -27,26 +27,31 @@ GUESTS = [
   #}
 ]
 
-# Sample box list:
+# Sample box list: https://app.vagrantup.com/boxes/search
 
 # centos/8
 # centos/7
-# centos/6
+# debian/bullseye64 (11)
 # debian/buster64 (10)
 # debian/stretch64 (9)
 # debian/jessie64 (8)
-# ubuntu/groovy64 (20.10)
+# generic/apline312 (35, 36, 37, 38, 39, 310, 311 also available)
+# ubuntu/impish64 (21.10)
+# ubuntu/hirsute (21.04)
 # ubuntu/focal64 (20.04 LTS)
-# ubuntu/eoan64 (19.10)
 # ubuntu/bionic64 (18.04 LTS)
 # ubuntu/xenial64 (16.04 LTS)
 # ubuntu/trusy64 (14.04 LTS, in ESM)
-# ubuntu/precise64 (12.04 LTS, in ESM)
-# bento/centos-[6,7,8]
-# bento/ubuntu-[16.04,18.04,20.04]
-# bento/debian-[8,9,10]
+# ubuntu/trusy32 (14.04 LTS, in ESM)
+# bento/centos-[5,6,7,8]
+# bento/ubuntu-[16.04,18.04,20.04,20.10,21.04]
+# bento/debian-[8,9,10,11]
 
-# PROVIDER = 'parallels'
+# PROVIDER = 'docker' # untested
+# PROVIDER = 'hyperv' # untested
+# PROVIDER = 'libvirt' # untested
+# PROVIDER = 'parallels' # untested
+# PROVIDER = 'vmware_desktop' # untested
 # PROVIDER = 'virtualbox'
 
 # GUESTS:
