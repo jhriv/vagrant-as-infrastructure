@@ -37,27 +37,27 @@ or
 
 * `make all` does the following:
    * `make up` Brings up all Vagrant boxes (same as `vagrant up`)
-   * `make roles` Install Ansible Galaxy roles from "roles.yml" or "config/roles.yml"
-   * `make .ssh-config` Create ssh configuration
-   * `make .inventory` Create ansible inventory
+   * `make roles` Install Ansible Galaxy roles from "requirements.yml" or "config/requirements.yml"
+   * `make .vai/ssh-config` Create ssh configuration
+   * `make .vai/inventory` Create ansible inventory
    * `make ansible.cfg` Create default ansible.cfg
    * `make main` Run main.yml playbook, if present
-   * `make ip` Display the IPs of all the VMs[*](#caveats)
+   * `make ip` Display the IPs of all the VMs[\*](#caveats)
 
 Other commands:
 
 * `make Vagrantfile` Downloads sample `Vagrantfile` and `GUESTS.rb`
 * `make GUESTS.rb` Downloads sample `GUESTS.rb` (used by sample `Vagrantfile`)
-* `make clean-roles` Removes installed ansible roles[*](#caveats)
+* `make clean-roles` Removes installed ansible roles[\*](#caveats)
 * `make clean` Removes ansible files
 * `make copyright` Displays copyright information
 * `make etc-hosts` Add host records to all guests
 * `make license` Displays license information
 * `make roles-force` Update all roles, overwriting when required
 * `make ping` Pings all guests via Ansible's ping module
-* `make python` Installs python on Debian systems[*](#python)
+* `make python` Installs python on Alpine/Debian/Ubuntu systems[\*](#python)
 * `make root-key` Copies vagrant ssh key for root user access
-* `make update` Downloads latest version from GitHub[*](#caveats)
+* `make update` Downloads latest version from GitHub[\*](#caveats)
 * `make version` Displays installed version
 
 ## Method
@@ -76,20 +76,22 @@ of your infrastructure, either by name or by [group](#hosts-and-groups).
 The Makefile will accept command line options, or read from similarly named
 environmental variables:
 
-* `ETC_HOSTS` etc-hosts playbook[*](#caveats)
-* `INVENTORY` ansible inventory file[*](#caveats)
+* `ETC_HOSTS` etc-hosts playbook[\*](#caveats)
+* `INVENTORY` ansible inventory file[\*](#caveats)
 * `MAIN` default playbook to run, if present
 * `REPO` upstream repository
-* `RETRYPATH` directory to place .retry files
+* `RETRYPATH` directory to place retry files[\*](#caveats)
 * `ROLES_PATH` ansible roles path
 * `SAMPLEVAGRANTFILE` upstream Vagrantfile.sample
-* `SSHCONFIG` location of generated ssh configuration[*](#caveats)
-* `VAULTPASSWORDFILE` path to ansible vault password file
+* `SSHCONFIG` location of generated ssh configuration[\*](#caveats)
+* `VAIDIR` directory to place Ansible files[\*](#caveats)
+* `VAULTPASSWORDFILE` path to ansible vault password file[\*](#caveats)
 
 ## Roles
 
-If `roles.yml` or `config/roles.yml` exists, the listed roles will be
-downloaded from Galaxy. If both exist, then `roles.yml` will take precedence.
+If `requirements.yml` or `config/requirements.yml` exists, the listed roles
+will be downloaded from Galaxy. If both exist, then `requirements.yml` will
+take precedence.
 
 ## Hosts and Groups
 
@@ -110,40 +112,41 @@ GUESTS.rb lists all the vagrant boxes, so the Vagrantfile can be upgraded
 without having to redefine all the boxes.
 
 Options are:
-- name: **[MANDATORY]** (string) Name of box
-- box: (string) guest OS `ubuntu/bionic64`, `centos/7`, etc
+- `name`: **[MANDATORY]** (string) Name of box
+- `box`: (string) guest OS `ubuntu/focal64`, `centos/7`, etc
   (default ubuntu/bionic64, or _`DEFAULT_BOX`_)
-- cpus: (integer) Number of CPUs to assign (default _per box_)
-- gui: (boolean) Allocate GUI (default _false_)
-- ip: (string) Additional IP for guest-to-guest communication
+- `cpus`: (integer) Number of CPUs to assign (default _per box_)
+- `gui`: (boolean) Allocate GUI (default _false_)
+- `ip`: (string) Additional IP for guest-to-guest communication
   - Can be fully expressed dotted quad (10.1.2.3)
   - Can be final octet only (3)
   - Can be 'dhcp' to allow provider to allocate
   - default _nil_
-- memory: (integer) Memory in KB (default _per box_)
-- needs_python: (boolean) Install python/python-apt in guest
-  - default _true_ for Debian/Ubuntu
+- `memory`: (integer) Memory in KB (default _per box_)
+- `needs_python`: (boolean) Install python/python-apt in guest
+  - default _true_ for Alpine/Debian/Ubuntu
   - default _false_ for all others
-- ports: (array) Ports to forward. Can be a hash, to further refine definition
-  - auto_correct: move host port in case of collision (default _true_)
-  - guest_ip: (string) (default _nil_)
-  - host_ip: (string) (default _nil_)
-  - host: (string) Port on host (default _same as guest_)
-  - id: (string) friendly name (default _nil_)
-  - protocol: (string) tcp or udp (default _nil_)
+- `ports`: (array) Ports to forward. Can be a hash, to further refine definition
+  - `auto_correct`: (boolean) move host port in case of collision (default _true_)
+  - `guest_ip`: (string) (default _nil_)
+  - `host_ip`: (string) (default _nil_)
+  - `host`: (string) Port on host (default _same as guest_)
+  - `id`: (string) friendly name (default _nil_)
+  - `protocol`: (string) tcp or udp (default _nil_)
   - default _nil_
-- sync: (boolean) Sync local folder to guest (default _false_)
-- update: (boolean) Update guest OS packages (default _false_)
+- `sync`: (boolean) Sync local folder to guest (default _false_)
+- `update`: (boolean) Update guest OS packages (default _false_)
+
 _Available provisioners_
-- ansible: (string|array of strings) playbook to run at provisioning
+- `ansible`: (string|array of strings) playbook to run at provisioning
   - can be an array, for multiple playbook provisioners
   - default _nil_
-- file: (string|array of strings) File provisioner, copies file to guest
+- `file`: (string|array of strings) File provisioner, copies file to guest
   - relative filename relative to $HOME
   - absolute filename absolute in guest
   - can be an array, for multiple files
   - default _nil_
-- shell: (string|array of strings) script to run at provisioning
+- `shell`: (string|array of strings) script to run at provisioning
   - can be an array, for multiple shell provisioners
   - default _nil_
 
@@ -153,9 +156,10 @@ See [GUESTS.rb.sample][G] for examples.
 
 ## Python
 
-A box with a name that includes "Debian" or "Ubuntu" (case insensitive) will
-have `python` and `python-apt` installed automatically. This can be overridden
-by setting `needs_python: false` in the `GUESTS.rb` defintion for the box.
+A box with a name that includes "Alpine", "Debian" or "Ubuntu" (case
+insensitive) will have `python` and `python-apt` installed automatically. This
+can be overridden by setting `needs_python: false` in the `GUESTS.rb` defintion
+for the box.
 
 ## Caveats
 
@@ -168,8 +172,8 @@ The `update` target will overwrite the Makefile.
 
 The `etc-hosts` target works best when there is only one additional interface.
 
-Certain variables, `ETC_HOSTS`, `INVENTORY`, and `SSHCONFIG`, will break if
-there is embedded whitespace.
+Certain variables, `ETC_HOSTS`, `INVENTORY`, `ROLES_PATH`, `SSHCONFIG`,
+`VAIDIR`, and `VAULTPASSWORDFILE` will break if there is embedded whitespace.
 
 <!-- References -->
 [6P]: http://hakunin.com/six-ansible-practices

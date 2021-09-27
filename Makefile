@@ -1,15 +1,16 @@
 # Master Makefile for Vagrant as Infrastructure.
 
-ETC_HOSTS ?= .etc-hosts.yml
-INVENTORY ?= .inventory
+ETC_HOSTS ?= $(VAIDIR)etc-hosts.yml
+INVENTORY ?= $(VAIDIR)inventory
 MAIN ?= main.yml
 REPO ?= https://raw.githubusercontent.com/jhriv/vagrant-as-infrastructure
-RETRYPATH ?= .ansible-retry
+RETRYPATH ?= $(VAIDIR)retry
 ROLES_PATH ?= roles
 SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
-SSHCONFIG ?= .ssh-config
-VAULTPASSWORDFILE ?= .vaultpassword
-VERSION := 2.0.0
+SSHCONFIG ?= $(VAIDIR)ssh-config
+VAIDIR ?= .vai/
+VAULTPASSWORDFILE ?= $(VAIDIR)vaultpassword
+VERSION := 2.1.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -81,7 +82,7 @@ clean-roles:
 copyright:
 	@echo 'Copyright 2016-2018 John H. Robinson, IV'
 
-$(ETC_HOSTS):
+$(ETC_HOSTS): $(VAIDIR)
 	@echo 'Downloading $@'
 	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@
 
@@ -90,7 +91,7 @@ etc-hosts: $(ETC_HOSTS) ansible.cfg
 
 # Because of the pipe, extraordinary means have to be used to save the return
 # code of "vagrant status"
-$(INVENTORY): $(wildcard .vagrant/machines/*/*/id)
+$(INVENTORY): $(wildcard .vagrant/machines/*/*/id) $(VAIDIR)
 	@echo 'Creating $@'
 	@( ( ( vagrant status; echo $$? >&3 ) \
 		|  perl -x $(WHOAMI) > $@ ) 3>&1 ) \
@@ -145,7 +146,7 @@ root-key: ansible.cfg
 		--args='src=.ssh/authorized_keys dest=/root/.ssh/authorized_keys remote_src=true'
 
 # Only get the configs of running boxes. If no boxes, exist, call "up" target
-$(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id)
+$(SSHCONFIG): $(wildcard .vagrant/machines/*/*/id) $(VAIDIR)
 # "test -f" returns true; wildcard returns empy if nothing matches;
 # appending / (which will never be a file) ensures failure if no vagrant
 # boxes exist, in any state
@@ -172,6 +173,9 @@ Vagrantfile GUESTS.rb:
 		echo 'Downloading $@'; \
 		curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@.sample; \
 	fi
+
+$(VAIDIR):
+	@mkdir $(VAIDIR)
 
 version:
 	@echo '$(VERSION)'
