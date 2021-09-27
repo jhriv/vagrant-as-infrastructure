@@ -13,9 +13,9 @@ Vagrant.configure(2) do |config|
 
   # Provider
   if defined?(PROVIDER)
-    config.vm.provider "#{PROVIDER}"
+    config.vm.provider PROVIDER
   else
-    config.vm.provider "#{_DEFAULT_PROVIDER}"
+    config.vm.provider _DEFAULT_PROVIDER
   end
 
   GUESTS.each_with_index do |guest, i|
