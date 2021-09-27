@@ -146,10 +146,27 @@ Vagrant.configure(2) do |config|
       if guest.has_key?(:file)
         if guest[:file].is_a? Array
           guest[:file].each do |file|
-            box.vm.provision "file", source: file, destination: "#{file}"
+            box.vm.provision "file", source: file, destination: file
           end
         else
-          box.vm.provision "file", source: guest[:file], destination: "#{guest[:file]}"
+          box.vm.provision "file", source: guest[:file], destination: guest[:file]
+        end
+      end
+
+      # Inline Shell
+      if guest.has_key?(:inline)
+        if guest[:inline].is_a? Array
+          guest[:inline].each do |command|
+            box.vm.provision "shell" do |shell|
+              shell.inline = command
+              shell.name = command.split.first
+            end
+          end
+        else
+          box.vm.provision "shell" do |shell|
+            shell.inline = guest[:inline]
+            shell.name = guest[:inline].split.first
+          end
         end
       end
 
