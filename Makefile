@@ -10,7 +10,7 @@ SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= $(VAIDIR)ssh-config
 VAIDIR ?= .vai/
 VAULTPASSWORDFILE ?= $(VAIDIR)vaultpassword
-VERSION := 2.1.1
+VERSION := 2.1.2
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -83,8 +83,8 @@ copyright:
 	@echo 'Copyright 2016-2018 John H. Robinson, IV'
 
 $(ETC_HOSTS): $(VAIDIR)
-	@echo 'Downloading $(notdir $@)'
-	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$(notdir $@)
+	@echo 'Downloading $(subst $(VAIDIR),,$@)'
+	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$(subst $(VAIDIR),,$@)
 
 etc-hosts: $(ETC_HOSTS) ansible.cfg
 	@ansible-playbook $<

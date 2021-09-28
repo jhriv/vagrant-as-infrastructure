@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [2.1.2] - 2021-09-27
+### Fixed
+- VAIDIR variable can be either a directory or a pathname prefix
+
 ### CHANGED
 - Updated Copyright date
 - Formatted license for 80 columns
