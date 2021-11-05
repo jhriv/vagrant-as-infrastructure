@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 # Reasonable Defaults - can be overridden with environmental variables
-_IP_NETWORK=ENV.fetch('IP_NETWORK','172.16.1')
+_IP_NETWORK=ENV.fetch('IP_NETWORK','192.168.56')
 _DEFAULT_BOX=ENV.fetch('DEFAULT_BOX', 'ubuntu/focal64')
 _DEFAULT_PROVIDER=ENV.fetch('VAGRANT_DEFAULT_PROVIDER', 'virtualbox')
 

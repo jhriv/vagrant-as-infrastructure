@@ -120,6 +120,7 @@ Options are:
 - `ip`: (string) Additional IP for guest-to-guest communication
   - Can be fully expressed dotted quad (10.1.2.3)
   - Can be final octet only (3)
+    (default network 192.168.56 or _`IP_NETWORK`_)
   - Can be 'dhcp' to allow provider to allocate
   - default _nil_
 - `memory`: (integer) Memory in KB (default _per box_)

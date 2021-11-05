@@ -10,7 +10,7 @@ SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= $(VAIDIR)ssh-config
 VAIDIR ?= .vai/
 VAULTPASSWORDFILE ?= $(VAIDIR)vaultpassword
-VERSION := 2.1.2
+VERSION := 2.1.3
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
