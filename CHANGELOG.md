@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.4] - 2022-03-07
+### CHANGED
+- Adjust /etc/hosts for alpine guests
+- Updated Copyright date
+
+## [2.1.3] - 2021-11-04
+### CHANGED
+- Update default network range
+
 ## [2.1.2] - 2021-09-27
 ### Fixed
 - VAIDIR variable can be either a directory or a pathname prefix

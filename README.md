@@ -162,6 +162,12 @@ insensitive) will have `python` and `python-apt` installed automatically. This
 can be overridden by setting `needs_python: false` in the `GUESTS.rb` defintion
 for the box.
 
+## Localhost
+
+A box with a name that includes "Alpine" will have `/etc/hosts` adjusted to
+remove any non-localhost name references. This will reverse the action of
+`setup-alpine`.
+
 ## Caveats
 
 The `clean-roles` target will clean _all_ the roles, even ones manually
