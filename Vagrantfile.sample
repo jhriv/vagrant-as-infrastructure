@@ -25,6 +25,15 @@ Vagrant.configure(2) do |config|
       # :box Define OS
       box.vm.box = ( guest.key?(:box) ? guest[:box] : _DEFAULT_BOX )
 
+      # Fix alpine's idea of localhost
+      if /alpine/i =~ box.vm.box
+        box.vm.provision 'shell',
+          name: 'Fixing localhost entry',
+          inline: <<-'SCRIPT'
+            sed -i -E 's/^(127\.0\.0\.1|::1\s*)\t.*/\1\tlocalhost/' /etc/hosts
+          SCRIPT
+      end
+
       # :ip IP
       if guest.has_key?(:ip)
         if guest[:ip] == 'dhcp'
