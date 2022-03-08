@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2022-03-07
+### Fixed
+- Alpine guests now report assigned IP addresses
+
+### CHANGED
+- Multiple IPs are listed one per lin
+- Copyright date in Makefile updated
+
 ## [2.1.4] - 2022-03-07
 ### CHANGED
 - Adjust /etc/hosts for alpine guests
