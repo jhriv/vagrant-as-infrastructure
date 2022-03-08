@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.2] - 2022-03-08
+### Fixed
+- `ip` command could not be found on CentOS 7 guests
+
 ## [2.2.1] - 2022-03-07
 ### Added
 - `versions` target, for collecting dependency version numbers
