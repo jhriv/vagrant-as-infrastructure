@@ -80,7 +80,7 @@ clean-roles:
 	@rm -rf '$(ROLES_PATH)'/*
 
 copyright:
-	@echo 'Copyright 2016-2018 John H. Robinson, IV'
+	@echo 'Copyright 2022 John H. Robinson, IV'
 
 $(ETC_HOSTS): $(VAIDIR)
 	@echo 'Downloading $(subst $(VAIDIR),,$@)'
