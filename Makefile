@@ -10,7 +10,7 @@ SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= $(VAIDIR)ssh-config
 VAIDIR ?= .vai/
 VAULTPASSWORDFILE ?= $(VAIDIR)vaultpassword
-VERSION := 2.1.4
+VERSION := 2.2.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -98,8 +98,10 @@ $(INVENTORY): $(wildcard .vagrant/machines/*/*/id) $(VAIDIR)
 		|  ( read x; exit $$x ) \
 		|| ( RET=$$?; rm $@; exit $$RET )
 
+_IP_CMD=ip -family inet address show scope global up \
+	| awk "BEGIN {FS=\"[ /]+\"} /inet/{print \$$3}"
 ip: ansible.cfg
-	@ansible all --args='hostname -I' \
+	@ansible all --module-name=shell --args='$(_IP_CMD)' \
 		|| { ret=$$?; \
 			echo 'Do you need to install python? (make python)'; \
 			exit $$ret; \
