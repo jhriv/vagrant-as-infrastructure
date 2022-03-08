@@ -6,12 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.1] - 2022-03-07
+### Added
+- `versions` target, for collecting dependency version numbers
+
 ## [2.2.0] - 2022-03-07
 ### Fixed
 - Alpine guests now report assigned IP addresses
 
 ### CHANGED
-- Multiple IPs are listed one per lin
+- Multiple IPs are listed one per line
 - Copyright date in Makefile updated
 
 ## [2.1.4] - 2022-03-07

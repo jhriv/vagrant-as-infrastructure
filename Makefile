@@ -10,7 +10,7 @@ SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= $(VAIDIR)ssh-config
 VAIDIR ?= .vai/
 VAULTPASSWORDFILE ?= $(VAIDIR)vaultpassword
-VERSION := 2.2.0
+VERSION := 2.2.1
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -28,7 +28,8 @@ WHOAMI := $(lastword $(MAKEFILE_LIST))
 	root-key \
 	up \
 	update \
-	version
+	version \
+	versions
 
 menu:
 	@echo 'up: Brings up all Vagrant boxes (same as "vagrant up")'
@@ -54,6 +55,7 @@ menu:
 	@echo '        WARNING: this *will* overwrite $(WHOAMI).'
 	@echo 'Vagrantfile: Downloads sample Vagrantfile and GUESTS.rb'
 	@echo 'version: Displays version'
+	@echo 'versions: Displays dependency versions, suitable for issue submission'
 
 all: up roles $(SSHCONFIG) $(INVENTORY) ansible.cfg main ip
 
@@ -181,6 +183,13 @@ $(VAIDIR):
 
 version:
 	@echo '$(VERSION)'
+
+versions:
+	@echo "- Version: $$($(MAKE) version 2>/dev/null || echo Unknown)"
+	@echo "- Platform: $$(uname -s -r 2>/dev/null || echo Unknown)"
+	@echo "- Make version: $$({ $(MAKE) --version 2>/dev/null || echo Unknown; } | head -1)"
+	@echo "- Vagrant version: $$(vagrant -v 2>/dev/null || echo Unknown)"
+	@echo "- VirtualBox version: $$(VBoxManage -v 2>/dev/null || echo N/A)"
 
 ifeq (1,2) # perl script to convert vagrant status to ansible inventory, with groups
 # ifeq is used to prevent make(1) from interpreting the perl script

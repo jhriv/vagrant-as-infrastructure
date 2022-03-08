@@ -10,10 +10,10 @@
 2.
 3.
 
-## Specifications
+## Specifications (`make versions` will collect these)
 
-- Version:
-- Platform:
-- Make version:
-- Vagrant version:
-- VirtualBox version:
+- Version: `make version`
+- Platform: `uname -sr`
+- Make version: `make --version`
+- Vagrant version: `vagrant -v`
+- VirtualBox version: `VBoxManage -v`
