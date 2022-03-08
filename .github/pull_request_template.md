@@ -8,6 +8,6 @@ Fixes #
 
 ## Checklist
 
-[ ] Version updated (major/minor/patch)
-[ ] CHANGELOG updated
-[ ] README/Makefile is consistent
+- [ ] Version updated (major/minor/patch)
+- [ ] CHANGELOG updated
+- [ ] README/Makefile is consistent
