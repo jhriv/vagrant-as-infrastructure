@@ -108,6 +108,10 @@ to allow name-based addressing without relying on external DNS.
 
 See [README.Vagrantfile][VF].
 
+## Semantic Versioning
+
+This project follows [SemVer][SV].
+
 ## Caveats
 
 The `clean-roles` target will clean _all_ the roles, even ones manually
@@ -135,3 +139,4 @@ Certain variables, `ETC_HOSTS`, `INVENTORY`, `ROLES_PATH`, `SSHCONFIG`,
 [VB]: https://www.virtualbox.org/wiki/Downloads
 [V]: https://www.vagrantup.com/downloads.html
 [VM]: https://www.vmware.com/
+[SV]: https://semver.org/
