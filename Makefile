@@ -10,7 +10,7 @@ SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= $(VAIDIR)ssh-config
 VAIDIR ?= .vai/
 VAULTPASSWORDFILE ?= $(VAIDIR)vaultpassword
-VERSION := 2.2.1
+VERSION := 2.2.2
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -100,7 +100,7 @@ $(INVENTORY): $(wildcard .vagrant/machines/*/*/id) $(VAIDIR)
 		|  ( read x; exit $$x ) \
 		|| ( RET=$$?; rm $@; exit $$RET )
 
-_IP_CMD=ip -family inet address show scope global up \
+_IP_CMD=/sbin/ip -family inet address show scope global up \
 	| awk "BEGIN {FS=\"[ /]+\"} /inet/{print \$$3}"
 ip: ansible.cfg
 	@ansible all --module-name=shell --args='$(_IP_CMD)' \
