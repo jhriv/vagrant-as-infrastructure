@@ -48,7 +48,7 @@ Other commands:
 
 * `make Vagrantfile` Downloads sample `Vagrantfile` and `GUESTS.rb`
 * `make GUESTS.rb` Downloads sample `GUESTS.rb` (used by sample `Vagrantfile`)
-* `make clean-roles` Removes installed ansible roles[\*](#caveats)
+* `make clean-roles` Removes installed ansible roles
 * `make clean` Removes ansible files
 * `make copyright` Displays copyright information
 * `make etc-hosts` Add host records to all guests
@@ -93,6 +93,8 @@ If `requirements.yml` or `config/requirements.yml` exists, the listed roles
 will be downloaded from Galaxy. If both exist, then `requirements.yml` will
 take precedence.
 
+Manually installed roles can be added to the `roles-local` directory.
+
 ## Hosts and Groups
 
 The inventory will group related hosts into groups. Related hosts all share
@@ -113,9 +115,6 @@ See [README.Vagrantfile][VF].
 This project follows [SemVer][SV].
 
 ## Caveats
-
-The `clean-roles` target will clean _all_ the roles, even ones manually
-installed.
 
 The `ip` target may fail on non-Linux guests.
 

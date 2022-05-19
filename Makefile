@@ -10,7 +10,7 @@ SAMPLEVAGRANTFILE ?= $(REPO)/$(VERSION)/Vagrantfile.sample
 SSHCONFIG ?= $(VAIDIR)ssh-config
 VAIDIR ?= .vai/
 VAULTPASSWORDFILE ?= $(VAIDIR)vaultpassword
-VERSION := 2.2.2
+VERSION := 2.3.0
 WHOAMI := $(lastword $(MAKEFILE_LIST))
 .PHONY: menu \
 	all \
@@ -64,7 +64,7 @@ ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 	@echo '[defaults]' > $@
 	@echo 'inventory = $(INVENTORY)' >> $@
 	@echo 'retry_files_save_path = $(RETRYPATH)' >> $@
-	@echo 'roles_path = $(ROLES_PATH)' >> $@
+	@echo 'roles_path = $(ROLES_PATH)-local:$(ROLES_PATH):~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles' >> $@
 	@echo 'stdout_callback = debug' >> $@
 	@test -f $(VAULTPASSWORDFILE) \
 		&& echo 'vault_password_file = $(VAULTPASSWORDFILE)' >> $@ \
