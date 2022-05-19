@@ -125,11 +125,11 @@ python: ansible.cfg
 		--module-name=raw \
 		--args='command -v apt-get &>/dev/null \
 			&& ( sudo apt-get update; \
-			     sudo apt-get install --assume-yes python python-apt ) \
+				sudo apt-get install --assume-yes python python-apt ) \
 			|| ( command -v apk &> /dev/null \
-			   && ( sudo apk update; \
-			        sudo apk add python3 ) \
-	                ) || true'
+				&& ( sudo apk update; \
+					sudo apk add python3 ) \
+			) || true'
 
 roles: $(wildcard requirements.yml config/requirements.yml)
 	@echo 'Downloading roles'
