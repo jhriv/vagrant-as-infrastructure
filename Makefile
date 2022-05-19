@@ -75,11 +75,13 @@ ansible.cfg: $(SSHCONFIG) $(INVENTORY)
 
 clean:
 	@echo 'Removing ansible files'
-	@rm -f ansible.cfg $(SSHCONFIG) $(INVENTORY)
+	@rm -f ansible.cfg '$(SSHCONFIG)' '$(INVENTORY)'
+	@rmdir '$(VAIDIR)' 2>/dev/null || true
 
 clean-roles:
 	@echo 'Removing local ansible roles'
 	@rm -rf '$(ROLES_PATH)'/*
+	@rmdir '$(ROLES_PATH)' 2>/dev/null || true
 
 copyright:
 	@echo 'Copyright 2022 John H. Robinson, IV'

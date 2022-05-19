@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2022-05-19
+### Fixed
+- `clean-roles` too greedy; added a roles-local to roles search path
+- empty directories now removed in `clean` and `clean-roles` target
+
 ## [2.2.2] - 2022-03-08
 ### Fixed
 - `ip` command could not be found on CentOS 7 guests
