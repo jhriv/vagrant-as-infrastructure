@@ -209,14 +209,24 @@ while (<>) {
 }
 
 # using a hash as an ad-hoc uniq
-# find all records in @i with a dash, strip the trailing -suffix off, add to %g
-%g = map { $_=>1 } ( map {/^(\S+)-/} @i );
+# find all box names with a dash or underscore, strip the trailing
+# suffix(es) off, add to group names
+@u=@i;
+while (@u) {
+  $_ = shift @u;
+  if (/^(\S+)[-_]/) {
+    ($_=$1) =~ tr/-/_/; # "-" in ansible group names is illegal, convert to "_"
+    $g{$_} = 1;
+    unshift (@u, $_) if (/\S+_/); # more processing if more suffixes left
+  }
+}
 
-map { say } sort @i; # displays sorted @i, one record per line
+map { say } sort @i; # displays sorted box names, one record per line
 
-# for every %g (group), display it and all boxes with that prefix
+# for every group, display it and all boxes with that prefix, mindful of - -> _
 for $g (sort keys %g) {
-  say qq(\n[$g]\n), join ( qq(\n), grep { /^$g-/ } @i );
+  ($r = $g) =~ s/_/[-_]/g; # box names don't get the - -> _ conversion
+  say qq(\n[$g]\n), join ( qq(\n), grep { /^$r[-_]/ } @i );
 }
 
 __END__

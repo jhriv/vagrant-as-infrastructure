@@ -98,8 +98,7 @@ Manually installed roles can be added to the `roles-local` directory.
 ## Hosts and Groups
 
 The inventory will group related hosts into groups. Related hosts all share
-the same prefix. `web-1`, `web-2`, `web-3` will all be a part of `[web]`. Only
-the last suffix is considered. `web-east-1` would be in only `[web-east]`.
+the same prefix. `web-1`, `web-2`, `web-3` will all be a part of `[web]`.
 
 ## etc-hosts
 
