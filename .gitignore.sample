@@ -1,0 +1,8 @@
+# Vagrant files
+.vagrant
+.vai
+ansible.cfg
+roles
+
+# Ubuntu Vagrant Box Specific
+ubuntu-*-cloudimg-console.log

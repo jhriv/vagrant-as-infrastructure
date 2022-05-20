@@ -88,10 +88,19 @@ copyright:
 
 $(ETC_HOSTS): $(VAIDIR)
 	@echo 'Downloading $(subst $(VAIDIR),,$@)'
-	@curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$(subst $(VAIDIR),,$@)
+	@curl --silent --show-error --fail --output $@ $(REPO)/$(VERSION)/$(subst $(VAIDIR),,$@)
 
 etc-hosts: $(ETC_HOSTS) ansible.cfg
 	@ansible-playbook $<
+
+.gitignore:
+	@if [ -f $@.sample ]; then \
+		echo 'Copying $@.sample'; \
+		cp $@.sample $@; \
+	else \
+		echo 'Downloading $@'; \
+		curl --silent --show-error --fail --output $@ $(REPO)/$(VERSION)/$@.sample; \
+	fi
 
 # Because of the pipe, extraordinary means have to be used to save the return
 # code of "vagrant status"
@@ -112,7 +121,7 @@ ip: ansible.cfg
 		}
 
 license:
-	@curl --silent --show-error $(REPO)/$(VERSION)/LICENSE
+	@curl --silent --show-error --fail $(REPO)/$(VERSION)/LICENSE
 
 main: ansible.cfg
 	@test -f '$(MAIN)' \
@@ -168,7 +177,7 @@ up:
 
 update:
 	@echo 'Downloading latest Makefile'
-	@curl --silent --show-error --output $(WHOAMI) $(REPO)/master/Makefile
+	@curl --silent --show-error --fail --output $(WHOAMI) $(REPO)/master/Makefile
 
 Vagrantfile: | GUESTS.rb
 Vagrantfile GUESTS.rb:
@@ -177,7 +186,7 @@ Vagrantfile GUESTS.rb:
 		cp $@.sample $@; \
 	else \
 		echo 'Downloading $@'; \
-		curl --silent --show-error --output $@ $(REPO)/$(VERSION)/$@.sample; \
+		curl --silent --show-error --fail --output $@ $(REPO)/$(VERSION)/$@.sample; \
 	fi
 
 $(VAIDIR):
