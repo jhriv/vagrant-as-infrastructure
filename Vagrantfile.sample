@@ -114,6 +114,7 @@ Vagrant.configure(2) do |config|
       # :update Update OS
       if guest.has_key?(:update) && guest[:update]
         box.vm.provision 'shell',
+          name: 'Updating OS packages',
           inline: <<-'SCRIPT'
             if command -v apt-get > /dev/null; then
               export DEBIAN_FRONTEND=noninteractive
@@ -122,6 +123,21 @@ Vagrant.configure(2) do |config|
             fi
             if command -v yum > /dev/null; then
               yum upgrade --quiet --assumeyes
+            fi
+          SCRIPT
+      end
+
+      # :hostname Set box hostname
+      if guest.has_key?(:hostname) and guest[:hostname]
+        hostname = ( guest[:hostname].is_a? TrueClass ) ? guest[:name] : guest[:hostname].to_s
+        box.vm.provision 'shell',
+          name: 'Setting hostname',
+          inline: <<-"SCRIPT"
+            if command -v hostnamectl > /dev/null; then
+              hostnamectl set-hostname "#{hostname}"
+            else
+              sed -i -e "1c\\#{hostname}" /etc/hostname
+              hostname "#{hostname}"
             fi
           SCRIPT
       end
