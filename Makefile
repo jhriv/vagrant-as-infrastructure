@@ -136,7 +136,9 @@ python: ansible.cfg
 		--module-name=raw \
 		--args='command -v apt-get &>/dev/null \
 			&& ( sudo apt-get update; \
-				sudo apt-get install --assume-yes python python-apt ) \
+				apt-cache show python3 >/dev/null \
+					&& sudo apt-get install --assume-yes python3 \
+					|| sudo apt-get install --assume-yes python python-apt ) \
 			|| ( command -v apk &> /dev/null \
 				&& ( sudo apk update; \
 					sudo apk add python3 ) \

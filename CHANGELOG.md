@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `clean-roles` too greedy; added a roles-local to roles search path
 - empty directories now removed in `clean` and `clean-roles` target
 - group names have - converted to _
+- installs python3 when python is requested, and python3 is available (Debian/Ubuntu)
 
 ### Added
 - make groups on every - or _ separation

@@ -54,7 +54,12 @@ Vagrant.configure(2) do |config|
             if command -v apt-get > /dev/null; then
               export DEBIAN_FRONTEND=noninteractive
               apt-get update  --quiet=2
-              apt-get install --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes python python-apt
+              if apt-cache show python3 >/dev/null; then
+                packages="python3"
+              else
+                packages="python python-apt"
+              fi
+              apt-get install --quiet=2 --option=Dpkg::Use-Pty=0 --assume-yes $packages
             elif command -v apk > /dev/null; then
               apk --quiet --no-progress update
               apk --quiet --no-progress add python3
