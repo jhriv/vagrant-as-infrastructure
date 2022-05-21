@@ -144,6 +144,7 @@ Vagrant.configure(2) do |config|
               sed -i -e "1c\\#{hostname}" /etc/hostname
               hostname "#{hostname}"
             fi
+            grep -q " $(hostname)$" /etc/hosts || sed -i -e '$a'"127.0.0.1 $(hostname)" /etc/hosts
           SCRIPT
       end
 
